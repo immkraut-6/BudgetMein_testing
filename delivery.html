@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>BudgetMein Delivery</title>
+<meta name="theme-color" content="#FF4500"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="BM Delivery"/>
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dklefbj2a/image/upload/w_192,h_192,c_fill,f_png/v1774136201/BudgetMein_icon_ryjjlh.jpg"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  BudgetMein Delivery App — STANDALONE
+  ✅ Works from any domain/repo/URL
+  ✅ No other files needed
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import{getFirestore,collection,getDocs,doc,updateDoc,onSnapshot,query,where}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+const FB={apiKey:"AIzaSyCVPIRPTwByKE431I5QwcPEmTH9qgcitj8",authDomain:"budgetmein-62bc0.firebaseapp.com",projectId:"budgetmein-62bc0",storageBucket:"budgetmein-62bc0.firebasestorage.app",messagingSenderId:"1097719035074",appId:"1:1097719035074:web:1570114f2b10d6fbe8775b"};
+const fbApp=initializeApp(FB);
+const db=getFirestore(fbApp);
+const auth=getAuth(fbApp);
+
+// Telegram — Owner notifications
+const TG_TOKEN="8601047628:AAFJ0GppVLF8Fdz-cAlY7C3qAZFZVGGJeHw";
+const TG_OWNER="-5158992691"; // Owner's orders group
+
+async function tg(text){
+  try{
+    await fetch("https://api.telegram.org/bot"+TG_TOKEN+"/sendMessage",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({chat_id:TG_OWNER,parse_mode:"HTML",text:text,disable_web_page_preview:true})
+    });
+  }catch(e){}
+}
+
+// Anonymous auth for Firestore rules
+signInAnonymously(auth).catch(function(e){console.warn('[Delivery] Auth err:',e);});
+
+let _dbUnsubscribe=null;
+window._db=db;
+window._tg=tg;
+
+// ── LOAD ORDERS ──
+window.loadDeliveryOrders=async function(){
+  var boy=getBoyProfile();
+  if(!boy)return;
+  try{
+    var snap=await getDocs(collection(db,"orders"));
+    var all=[];
+    snap.forEach(function(d){all.push({_docId:d.id,...d.data()});});
+    // Sort newest first
+    all.sort(function(a,b){
+      var at=a.startTime||0,bt=b.startTime||0;
+      if(typeof at==='object'&&at&&at.seconds)at=at.seconds*1000;
+      if(typeof bt==='object'&&bt&&bt.seconds)bt=bt.seconds*1000;
+      return bt-at;
+    });
+    // Split: My accepted orders vs Available orders
+    var myOrders=all.filter(function(o){return o.assignedTo===boy.id&&o.status!=='Delivered';});
+    var available=all.filter(function(o){return !o.assignedTo&&o.status!=='Delivered'&&o.status!=='Cancelled';});
+    var myDone=all.filter(function(o){return o.assignedTo===boy.id&&o.status==='Delivered';});
+    renderMyOrders(myOrders);
+    renderAvailable(available);
+    renderDone(myDone);
+    // Update badge counts
+    document.getElementById('tabBadgeAvail').textContent=available.length||'';
+    document.getElementById('tabBadgeMine').textContent=myOrders.length||'';
+  }catch(e){
+    document.getElementById('availDiv').innerHTML='<div class="errmsg">⚠️ '+e.message+'</div>';
+  }
+};
+
+function renderAvailable(orders){
+  var div=document.getElementById('availDiv');
+  if(!orders.length){
+    div.innerHTML='<div class="empty">📭 No pending orders right now.<br/>Pull down to refresh!</div>';
+    return;
+  }
+  div.innerHTML=orders.map(function(o){
+    var st=o.startTime||0;
+    if(typeof st==='object'&&st&&st.seconds)st=st.seconds*1000;
+    var elapsed=st?((Date.now()-st)/60000):0;
+    var wait=Math.floor(elapsed);
+    var items=(o.itemsFull&&o.itemsFull.length)
+      ?o.itemsFull.map(function(i){return (i.e||'🍽️')+' '+i.n+(i.meta?' ('+i.meta+')':'')+' ×'+i.qty;}).join(' • ')
+      :(o.items||'—');
+    return '<div class="ocard avail" id="oc-'+o._docId+'">'
+      +'<div class="ohead">'
+        +'<span class="oid">#'+(o.id||'?')+'</span>'
+        +'<span class="owait '+(wait>15?'late':'')+'">'+(wait<1?'Just now':wait+' min ago')+'</span>'
+      +'</div>'
+      +'<div class="oaddr">📍 '+(o.address||'Address not available')+'</div>'
+      +'<div class="oitems">🛒 '+items+'</div>'
+      +'<div class="oprice">💰 Collect: <b>₹'+o.total+'</b> &nbsp;|&nbsp; 💵 Cash on Delivery</div>'
+      +'<button class="acceptbtn" onclick="acceptOrder(\''+o._docId+'\',\''+o.id+'\')">🛵 Accept This Delivery</button>'
+    +'</div>';
+  }).join('');
+}
+
+function renderMyOrders(orders){
+  var div=document.getElementById('mineDiv');
+  if(!orders.length){
+    div.innerHTML='<div class="empty">📭 No active deliveries.<br/>Check Available tab for new orders!</div>';
+    return;
+  }
+  div.innerHTML=orders.map(function(o){
+    var items=(o.itemsFull&&o.itemsFull.length)
+      ?o.itemsFull.map(function(i){return (i.e||'🍽️')+' '+i.n+(i.meta?' ('+i.meta+')':'')+' ×'+i.qty;}).join(' • ')
+      :(o.items||'—');
+    var st=o.acceptedAt||o.startTime||0;
+    if(typeof st==='object'&&st&&st.seconds)st=st.seconds*1000;
+    var elapsed=st?Math.floor((Date.now()-st)/60000):0;
+    return '<div class="ocard mine">'
+      +'<div class="ohead">'
+        +'<span class="oid">#'+(o.id||'?')+'</span>'
+        +'<span class="myphase">🛵 Your Delivery</span>'
+      +'</div>'
+      +'<div class="oaddr">📍 '+(o.address||'—')+'</div>'
+      +'<div class="oitems">🛒 '+items+'</div>'
+      +'<div class="oprice">💰 Collect: <b>₹'+o.total+'</b> &nbsp;|&nbsp; 💵 Cash</div>'
+      +'<div class="otimer">⏱️ Accepted '+elapsed+' min ago</div>'
+      +'<button class="deliverbtn" onclick="markDelivered(\''+o._docId+'\',\''+o.id+'\')">✅ Mark as Delivered</button>'
+    +'</div>';
+  }).join('');
+}
+
+function renderDone(orders){
+  var div=document.getElementById('doneDiv');
+  if(!orders.length){
+    div.innerHTML='<div class="empty">No completed deliveries yet today.</div>';
+    return;
+  }
+  var total=orders.reduce(function(s,o){return s+(Number(o.total)||0);},0);
+  div.innerHTML='<div class="donestats">Today: <b>'+orders.length+' deliveries</b> &nbsp;|&nbsp; Collected: <b>₹'+total+'</b></div>'
+    +orders.map(function(o){
+      return '<div class="ocard done">'
+        +'<div class="ohead"><span class="oid">#'+(o.id||'?')+'</span><span class="donebadge">✅ Delivered</span></div>'
+        +'<div class="oaddr">📍 '+(o.address||'—')+'</div>'
+        +'<div class="oprice">₹'+o.total+'</div>'
+      +'</div>';
+    }).join('');
+}
+
+// ── ACCEPT ORDER ──
+window.acceptOrder=async function(docId,orderId){
+  var boy=getBoyProfile();
+  if(!boy)return;
+  var btn=document.querySelector('#oc-'+docId+' .acceptbtn');
+  if(btn){btn.textContent='Accepting...';btn.disabled=true;}
+  try{
+    var nowMs=Date.now();
+    await updateDoc(doc(db,'orders',docId),{
+      assignedTo:boy.id,
+      assignedName:boy.name,
+      assignedPhone:boy.phone,
+      assignedAt:nowMs,
+      acceptedAt:nowMs,
+      status:'Out for Delivery'
+    });
+    // Notify owner on Telegram
+    await tg(
+      '🛵 <b>DELIVERY ACCEPTED!</b>\n'
+      +'──────────────\n'
+      +'📦 Order: <b>#'+orderId+'</b>\n'
+      +'👨 Delivery Boy: <b>'+boy.name+'</b>\n'
+      +'📱 Phone: <b>'+boy.phone+'</b>\n'
+      +'⏰ Time: '+new Date(nowMs).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+    );
+    bmToast('✅ Order #'+orderId+' accepted!');
+    loadDeliveryOrders();
+    showTab('mine');
+  }catch(e){
+    bmToast('❌ Error: '+e.message);
+    if(btn){btn.textContent='🛵 Accept This Delivery';btn.disabled=false;}
+  }
+};
+
+// ── MARK DELIVERED ──
+window.markDelivered=async function(docId,orderId){
+  var boy=getBoyProfile();
+  if(!boy)return;
+  if(!confirm('Mark order #'+orderId+' as DELIVERED?\n\nMake sure you have collected ₹ from customer!'))return;
+  try{
+    var nowMs=Date.now();
+    // Find order to calculate delivery time
+    var snap=await getDocs(collection(db,'orders'));
+    var orderData=null;
+    snap.forEach(function(d){if(d.id===docId)orderData=d.data();});
+    var acceptedAt=orderData&&orderData.acceptedAt?orderData.acceptedAt:nowMs;
+    if(typeof acceptedAt==='object'&&acceptedAt&&acceptedAt.seconds)acceptedAt=acceptedAt.seconds*1000;
+    var deliveryMin=Math.floor((nowMs-acceptedAt)/60000);
+    await updateDoc(doc(db,'orders',docId),{
+      status:'Delivered',
+      deliveredAt:nowMs,
+      deliveryTimeMin:deliveryMin
+    });
+    // Notify owner
+    await tg(
+      '✅ <b>ORDER DELIVERED!</b>\n'
+      +'──────────────\n'
+      +'📦 Order: <b>#'+orderId+'</b>\n'
+      +'👨 Delivery Boy: <b>'+boy.name+'</b>\n'
+      +'📱 Phone: <b>'+boy.phone+'</b>\n'
+      +'⏱️ Delivery Time: <b>'+deliveryMin+' minutes</b>\n'
+      +'⏰ Delivered At: '+new Date(nowMs).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+    );
+    bmToast('🎉 Delivered! Great job!');
+    loadDeliveryOrders();
+    showTab('done');
+  }catch(e){bmToast('❌ Error: '+e.message);}
+};
+
+window._loadDeliveryOrders=loadDeliveryOrders;
+</script>
+
+<style>
+:root{--p:#FF4500;--pd:#CC3700;--bg:#0D0D1A;--card:#1A1A2E;--ok:#28A745;--er:#C0392B;--g:#FFD700;--mu:#666;--bd:#1E1E30;--tx:#fff}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;max-width:480px;margin:0 auto}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ── REGISTER / LOGIN SCREEN ── */
+#regScreen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;
+  background:radial-gradient(ellipse at 70% 20%,rgba(255,69,0,.15),transparent 60%),var(--bg);
+}
+.regbox{background:var(--card);border-radius:20px;padding:28px 22px;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.regbox .logo{font-size:2.5rem;margin-bottom:8px}
+.regbox h2{font-size:1.3rem;font-weight:800;color:var(--p);margin-bottom:4px}
+.regbox p{font-size:.76rem;color:var(--mu);margin-bottom:20px;line-height:1.6}
+.inp{width:100%;padding:11px 14px;border:1.5px solid var(--bd);border-radius:10px;background:#0D0D1A;color:#fff;font-family:'Poppins',sans-serif;font-size:.88rem;outline:none;transition:border .2s;margin-bottom:10px;display:block}
+.inp:focus{border-color:var(--p)}
+.inp::placeholder{color:#444}
+.pinrow{display:flex;gap:8px;justify-content:center;margin-bottom:10px}
+.pinbox{width:52px;height:58px;border-radius:12px;border:2px solid var(--bd);background:#0D0D1A;color:#fff;font-size:1.5rem;text-align:center;font-family:'Poppins',sans-serif;outline:none;transition:border .2s}
+.pinbox:focus{border-color:var(--p)}
+.btn{width:100%;padding:12px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:4px;transition:opacity .2s}
+.btn:hover{opacity:.9}
+.btn.green{background:linear-gradient(135deg,#28A745,#1E7E34)}
+.btn.grey{background:none;border:1px solid #333;color:#666;font-size:.78rem;margin-top:8px}
+.errtxt{font-size:.74rem;color:var(--er);margin-bottom:8px;display:none;padding:6px 10px;background:rgba(192,57,43,.1);border-radius:8px}
+
+/* PIN login screen */
+#pinScreen{background:radial-gradient(ellipse at 30% 80%,rgba(255,69,0,.12),transparent 60%),var(--bg);}
+.pinloginbox{background:var(--card);border-radius:20px;padding:28px 22px;width:100%;max-width:340px;text-align:center;}
+.boy-greeting{font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
+.boy-sub{font-size:.74rem;color:var(--mu);margin-bottom:20px}
+.notme{background:none;border:none;color:var(--mu);font-size:.72rem;font-family:'Poppins',sans-serif;cursor:pointer;text-decoration:underline;margin-top:8px;display:block;width:100%;text-align:center}
+
+/* ── MAIN APP ── */
+#appScreen{display:none;flex-direction:column;}
+#appScreen.active{display:flex;}
+.appbar{
+  position:sticky;top:0;z-index:100;
+  background:var(--card);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bd);
+}
+.appbar-logo{font-size:.95rem;font-weight:800;color:var(--p)}
+.appbar-logo span{color:var(--g)}
+.boy-chip{display:flex;align-items:center;gap:6px;background:rgba(255,69,0,.1);border:1px solid rgba(255,69,0,.2);border-radius:20px;padding:4px 10px;}
+.boy-chip-avatar{width:22px;height:22px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:#fff;flex-shrink:0}
+.boy-chip-name{font-size:.72rem;font-weight:600;color:#fff;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* TABS */
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:53px;z-index:99}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:.7rem;font-weight:600;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;position:relative}
+.tab.active{color:var(--p);border-bottom-color:var(--p)}
+.tb{display:inline-block;margin-left:4px;background:var(--p);color:#fff;border-radius:10px;font-size:.58rem;font-weight:800;padding:1px 5px;min-width:14px;text-align:center;vertical-align:middle}
+
+/* TAB PANELS */
+.tabpanel{display:none;padding:12px;min-height:60vh}
+.tabpanel.active{display:block}
+
+/* ORDER CARDS */
+.ocard{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid var(--bd)}
+.ocard.avail{border-color:rgba(255,69,0,.3);background:linear-gradient(135deg,#1A1A2E,#200800)}
+.ocard.mine{border-color:rgba(255,215,0,.3);background:linear-gradient(135deg,#1A1A1A,#1A1A00)}
+.ocard.done{border-color:rgba(40,167,69,.2);opacity:.7}
+.ohead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.oid{font-size:.9rem;font-weight:800;color:var(--p)}
+.owait{font-size:.7rem;color:var(--mu);font-weight:600}
+.owait.late{color:var(--er)}
+.myphase{font-size:.68rem;font-weight:700;color:var(--g);background:rgba(255,215,0,.1);padding:2px 8px;border-radius:10px}
+.donebadge{font-size:.68rem;font-weight:700;color:var(--ok);background:rgba(40,167,69,.1);padding:2px 8px;border-radius:10px}
+.oaddr{font-size:.82rem;color:#fff;font-weight:600;margin-bottom:6px;line-height:1.5;padding:8px 10px;background:rgba(255,255,255,.04);border-radius:8px}
+.oitems{font-size:.72rem;color:#888;margin-bottom:6px;line-height:1.6}
+.oprice{font-size:.78rem;color:#aaa;margin-bottom:10px}
+.oprice b{color:var(--g)}
+.otimer{font-size:.72rem;color:var(--mu);margin-bottom:8px}
+.acceptbtn{width:100%;padding:11px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
+.acceptbtn:hover:not(:disabled){transform:scale(1.02);box-shadow:0 6px 18px rgba(255,69,0,.4)}
+.acceptbtn:disabled{background:#333;cursor:not-allowed}
+.deliverbtn{width:100%;padding:11px;border:none;border-radius:50px;background:linear-gradient(135deg,#28A745,#1E7E34);color:#fff;font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
+.deliverbtn:hover{transform:scale(1.02)}
+.empty{text-align:center;padding:40px 20px;color:var(--mu);line-height:2;font-size:.84rem}
+.errmsg{text-align:center;padding:20px;color:var(--er)}
+.donestats{background:rgba(40,167,69,.1);border:1px solid rgba(40,167,69,.2);border-radius:10px;padding:10px 14px;font-size:.8rem;color:var(--ok);margin-bottom:12px}
+
+/* REFRESH BTN */
+.refreshrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.refreshrow span{font-size:.72rem;color:var(--mu)}
+.refbtn{background:rgba(255,69,0,.1);border:1px solid rgba(255,69,0,.3);color:var(--p);padding:5px 12px;border-radius:20px;font-family:'Poppins',sans-serif;font-size:.7rem;font-weight:600;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;border:1px solid rgba(255,69,0,.4);border-radius:50px;padding:10px 20px;font-size:.82rem;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.show{opacity:1}
+
+/* PROFILE TAB */
+.profcard{background:var(--card);border-radius:14px;padding:16px;margin-bottom:10px;border:1px solid var(--bd)}
+.profcard h4{font-size:.88rem;font-weight:700;color:var(--p);margin-bottom:10px}
+.profrow{display:flex;justify-content:space-between;font-size:.8rem;padding:5px 0;border-bottom:1px solid var(--bd);color:#aaa}
+.profrow b{color:#fff}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.statbox{background:#0D0D1A;border-radius:10px;padding:12px;text-align:center}
+.statnum{font-size:1.4rem;font-weight:800;color:var(--p);display:block}
+.statlbl{font-size:.62rem;color:var(--mu)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     SCREEN 1: REGISTER
+     ══════════════════════════════ -->
+<div id="regScreen" class="screen active">
+  <div class="regbox">
+    <div class="logo">🛵</div>
+    <h2>BudgetMein Delivery</h2>
+    <p>Register once — stay logged in!<br/>Your profile saves automatically.</p>
+    <input class="inp" id="regName" type="text" placeholder="👤 Your Full Name *" autocomplete="name"/>
+    <input class="inp" id="regPhone" type="tel" placeholder="📱 Phone Number (10 digits) *" maxlength="10" inputmode="numeric"/>
+    <div style="font-size:.72rem;color:var(--mu);margin-bottom:8px;text-align:left">🔐 Set a 4-digit PIN (you'll use this to login)</div>
+    <div class="pinrow">
+      <input class="pinbox" type="password" maxlength="1" id="rp1" inputmode="numeric" oninput="rmf(this,'rp2')"/>
+      <input class="pinbox" type="password" maxlength="1" id="rp2" inputmode="numeric" oninput="rmf(this,'rp3')"/>
+      <input class="pinbox" type="password" maxlength="1" id="rp3" inputmode="numeric" oninput="rmf(this,'rp4')"/>
+      <input class="pinbox" type="password" maxlength="1" id="rp4" inputmode="numeric"/>
+    </div>
+    <div class="errtxt" id="regErr"></div>
+    <button class="btn" onclick="registerBoy()">✅ Register & Start</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 2: PIN LOGIN
+     ══════════════════════════════ -->
+<div id="pinScreen" class="screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:radial-gradient(ellipse at 30% 80%,rgba(255,69,0,.12),transparent 60%),var(--bg)">
+  <div class="pinloginbox">
+    <div style="font-size:2.2rem;margin-bottom:8px">👋</div>
+    <div class="boy-greeting" id="pinGreeting">Welcome back!</div>
+    <div class="boy-sub">Enter your PIN to continue</div>
+    <div class="pinrow">
+      <input class="pinbox" type="password" maxlength="1" id="lp1" inputmode="numeric" oninput="lmf(this,'lp2')"/>
+      <input class="pinbox" type="password" maxlength="1" id="lp2" inputmode="numeric" oninput="lmf(this,'lp3')"/>
+      <input class="pinbox" type="password" maxlength="1" id="lp3" inputmode="numeric" oninput="lmf(this,'lp4')"/>
+      <input class="pinbox" type="password" maxlength="1" id="lp4" inputmode="numeric" oninput="loginPin()"/>
+    </div>
+    <div class="errtxt" id="pinErr"></div>
+    <button class="btn" onclick="loginPin()">🔐 Login</button>
+    <button class="notme" onclick="notMe()">Not me? Switch account</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 3: MAIN APP
+     ══════════════════════════════ -->
+<div id="appScreen" class="screen">
+  <div class="appbar">
+    <div class="appbar-logo">Budget<span>Mein</span> 🛵</div>
+    <div class="boy-chip" onclick="showTab('profile')">
+      <div class="boy-chip-avatar" id="boyAvatar">?</div>
+      <div class="boy-chip-name" id="boyChipName">Boy</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tabAvail" onclick="showTab('avail')">
+      📦 Available<span class="tb" id="tabBadgeAvail"></span>
+    </div>
+    <div class="tab" id="tabMine" onclick="showTab('mine')">
+      🛵 My Orders<span class="tb" id="tabBadgeMine"></span>
+    </div>
+    <div class="tab" id="tabDone" onclick="showTab('done')">
+      ✅ Done
+    </div>
+    <div class="tab" id="tabProfile" onclick="showTab('profile')">
+      👤 Profile
+    </div>
+  </div>
+
+  <!-- Available Orders -->
+  <div class="tabpanel active" id="panel-avail">
+    <div class="refreshrow">
+      <span id="lastRefresh">Pull to refresh</span>
+      <button class="refbtn" onclick="refreshOrders()">🔄 Refresh</button>
+    </div>
+    <div id="availDiv"><div class="empty">Loading orders...</div></div>
+  </div>
+
+  <!-- My Orders -->
+  <div class="tabpanel" id="panel-mine">
+    <div class="refreshrow">
+      <span>Your active deliveries</span>
+      <button class="refbtn" onclick="refreshOrders()">🔄 Refresh</button>
+    </div>
+    <div id="mineDiv"><div class="empty">Loading...</div></div>
+  </div>
+
+  <!-- Done -->
+  <div class="tabpanel" id="panel-done">
+    <div id="doneDiv"><div class="empty">No completed deliveries yet.</div></div>
+  </div>
+
+  <!-- Profile -->
+  <div class="tabpanel" id="panel-profile">
+    <div class="profcard">
+      <h4>👤 My Profile</h4>
+      <div class="profrow"><span>Name</span><b id="profName2">—</b></div>
+      <div class="profrow"><span>Phone</span><b id="profPhone2">—</b></div>
+      <div class="profrow" style="border:none"><span>ID</span><b id="profId2" style="font-size:.68rem;color:var(--mu)">—</b></div>
+    </div>
+    <div class="profcard">
+      <h4>📊 My Stats Today</h4>
+      <div class="statgrid">
+        <div class="statbox"><span class="statnum" id="statToday">0</span><div class="statlbl">Today's Deliveries</div></div>
+        <div class="statbox"><span class="statnum" id="statTotal">0</span><div class="statlbl">Total Deliveries</div></div>
+      </div>
+    </div>
+    <button class="btn" style="margin-top:4px" onclick="refreshOrders()">🔄 Refresh Orders</button>
+    <button class="btn grey" onclick="logoutBoy()">🚪 Logout</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── PROFILE HELPERS ──
+function getBoyProfile(){
+  try{return JSON.parse(localStorage.getItem('bm_boy_profile')||'null');}catch(e){return null;}
+}
+function saveBoyProfile(p){localStorage.setItem('bm_boy_profile',JSON.stringify(p));}
+function getBoyPin(){return localStorage.getItem('bm_boy_pin')||'';}
+function saveBoyPin(pin){localStorage.setItem('bm_boy_pin',pin);}
+
+// ── INIT ──
+(function init(){
+  var boy=getBoyProfile();
+  if(!boy){
+    // First time — show registration
+    showScreen('regScreen');
+  } else {
+    // Has profile — show PIN login
+    document.getElementById('pinGreeting').textContent='Welcome back, '+boy.name.split(' ')[0]+'! 👋';
+    showScreen('pinScreen');
+    setTimeout(function(){document.getElementById('lp1').focus();},300);
+  }
+})();
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');s.style.display='none';});
+  var el=document.getElementById(id);
+  if(el){el.classList.add('active');el.style.display=(id==='appScreen')?'flex':'flex';}
+}
+
+// ── REGISTER ──
+function rmf(el,nid){if(el.value.length===1){var n=document.getElementById(nid);if(n)n.focus();}}
+function lmf(el,nid){if(el.value.length===1){var n=document.getElementById(nid);if(n)n.focus();}}
+
+function registerBoy(){
+  var name=(document.getElementById('regName').value||'').trim();
+  var phone=(document.getElementById('regPhone').value||'').trim();
+  var pin=['rp1','rp2','rp3','rp4'].map(function(id){return document.getElementById(id).value;}).join('');
+  var err=document.getElementById('regErr');
+  err.style.display='none';
+  if(!name||name.length<2){err.style.display='block';err.textContent='Please enter your full name!';return;}
+  if(!phone||phone.length!==10||!/^\d{10}$/.test(phone)){err.style.display='block';err.textContent='Please enter a valid 10-digit phone number!';return;}
+  if(pin.length!==4){err.style.display='block';err.textContent='Please set a 4-digit PIN!';return;}
+  var profile={
+    id:'boy-'+Date.now(),
+    name:name,
+    phone:'+91 '+phone,
+    registeredAt:Date.now()
+  };
+  saveBoyProfile(profile);
+  saveBoyPin(pin);
+  enterApp(profile);
+}
+
+// ── PIN LOGIN ──
+function loginPin(){
+  var pin=['lp1','lp2','lp3','lp4'].map(function(id){return document.getElementById(id).value;}).join('');
+  if(pin.length<4)return;
+  var err=document.getElementById('pinErr');
+  if(pin===getBoyPin()){
+    var boy=getBoyProfile();
+    enterApp(boy);
+  } else {
+    err.style.display='block';err.textContent='❌ Wrong PIN! Try again.';
+    ['lp1','lp2','lp3','lp4'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('lp1').focus();
+    setTimeout(function(){err.style.display='none';},2500);
+  }
+}
+
+function notMe(){
+  if(!confirm('This will remove your saved profile from this device. Continue?'))return;
+  localStorage.removeItem('bm_boy_profile');
+  localStorage.removeItem('bm_boy_pin');
+  showScreen('regScreen');
+}
+
+function logoutBoy(){
+  if(!confirm('Logout? You will need to enter PIN to login again.'))return;
+  showScreen('pinScreen');
+  var boy=getBoyProfile();
+  if(boy)document.getElementById('pinGreeting').textContent='Welcome back, '+boy.name.split(' ')[0]+'! 👋';
+  ['lp1','lp2','lp3','lp4'].forEach(function(id){document.getElementById(id).value='';});
+  setTimeout(function(){document.getElementById('lp1').focus();},300);
+}
+
+// ── ENTER APP ──
+function enterApp(boy){
+  // Update UI
+  document.getElementById('boyAvatar').textContent=boy.name.charAt(0).toUpperCase();
+  document.getElementById('boyChipName').textContent=boy.name.split(' ')[0];
+  document.getElementById('profName2').textContent=boy.name;
+  document.getElementById('profPhone2').textContent=boy.phone;
+  document.getElementById('profId2').textContent=boy.id;
+  showScreen('appScreen');
+  showTab('avail');
+  refreshOrders();
+  // Auto refresh every 30 sec
+  setInterval(function(){
+    if(document.getElementById('appScreen').classList.contains('active')){
+      window._loadDeliveryOrders&&window._loadDeliveryOrders();
+    }
+  },30000);
+}
+
+// ── TABS ──
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tabpanel').forEach(function(p){p.classList.remove('active');});
+  var tabEl=document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1));
+  var panelEl=document.getElementById('panel-'+name);
+  if(tabEl)tabEl.classList.add('active');
+  if(panelEl)panelEl.classList.add('active');
+  if(name==='profile') updateProfileStats();
+}
+
+function refreshOrders(){
+  document.getElementById('lastRefresh').textContent='Last refreshed: '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  if(window._loadDeliveryOrders) window._loadDeliveryOrders();
+}
+
+// ── PROFILE STATS ──
+function updateProfileStats(){
+  var boy=getBoyProfile();
+  if(!boy)return;
+  if(!window._loadDeliveryOrders)return;
+  // Count from Firebase orders (loaded in _allOrders isn't available here, reload)
+  import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js").then(function(mod){
+    mod.getDocs(mod.collection(window._db,"orders")).then(function(snap){
+      var all=[];
+      snap.forEach(function(d){all.push(d.data());});
+      var mine=all.filter(function(o){return o.assignedTo===boy.id;});
+      var today=new Date().toLocaleDateString('en-IN');
+      var todayMine=mine.filter(function(o){return o.status==='Delivered'&&o.date===today;});
+      var totalDone=mine.filter(function(o){return o.status==='Delivered';});
+      document.getElementById('statToday').textContent=todayMine.length;
+      document.getElementById('statTotal').textContent=totalDone.length;
+    }).catch(function(){});
+  }).catch(function(){});
+}
+
+// ── TOAST ──
+function bmToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+</script>
+</body>
+</html>
