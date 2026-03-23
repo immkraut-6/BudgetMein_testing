@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetMein — Login & Sign Up</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#FF4500"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="BudgetMein"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dklefbj2a/image/upload/w_192,h_192,c_fill,f_png/v1774136201/BudgetMein_icon_ryjjlh.jpg"/>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dklefbj2a/image/upload/w_192,h_192,c_fill,f_png/v1774136201/BudgetMein_icon_ryjjlh.jpg"/>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load',function(){
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(r){console.log('[PWA] SW registered');})
+          .catch(function(e){console.warn('[PWA] SW failed:',e);});
+      });
+    }
+  </script>
+  <meta name="description" content="Login or Sign Up to BudgetMein — Order food within your budget. Fast delivery, budget-friendly prices, open 3PM to 9PM." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       CSS VARIABLES — Brand Colors & Design Tokens
+    ========================================================= */
+    :root {
+      --primary:        #FF4500;
+      --primary-dark:   #CC3700;
+      --primary-light:  #FF6B3D;
+      --secondary:      #1A1A2E;
+      --secondary-light:#25253E;
+      --accent:         #FFD700;
+      --bg:             #F8F8F8;
+      --white:          #FFFFFF;
+      --text-dark:      #1A1A2E;
+      --text-muted:     #7B8094;
+      --text-light:     #ABAEC5;
+      --border:         #E5E5EF;
+      --error:          #E53E3E;
+      --success:        #38A169;
+      --warning:        #DD6B20;
+      --input-bg:       #FAFAFE;
+      --shadow-card:    0 20px 60px rgba(0, 0, 0, 0.12);
+      --shadow-btn:     0 8px 24px rgba(255, 69, 0, 0.35);
+      --radius-lg:      18px;
+      --radius-md:      12px;
+      --radius-sm:      8px;
+      --transition:     all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --font-logo:      'Baloo 2', cursive;
+      --font-body:      'Poppins', sans-serif;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* =========================================================
+       STORE TIMING BANNER
+    ========================================================= */
+    .timing-banner {
+      width: 100%;
+      padding: 10px 20px;
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+    }
+
+    .timing-banner--open {
+      background: linear-gradient(90deg, #1E7E34, #28A745);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    .timing-banner--soon {
+      background: linear-gradient(90deg, #E65C00, #FF8C00);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(230, 92, 0, 0.4);
+    }
+
+    .timing-banner--closed {
+      background: linear-gradient(90deg, #96281B, #C0392B);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(150, 40, 27, 0.4);
+    }
+
+    /* =========================================================
+       MAIN LAYOUT — Split Screen
+    ========================================================= */
+    .page-wrapper {
+      display: flex;
+      min-height: calc(100vh - 46px);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* =========================================================
+       LEFT PANEL
+    ========================================================= */
+    .left-panel {
+      background: var(--secondary);
+      flex: 0 0 45%;
+      max-width: 45%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 52px;
+      overflow: hidden;
+    }
+
+    /* Decorative background circles */
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(255,69,0,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Orange wave on right edge */
+    .left-panel__wave {
+      position: absolute;
+      right: -2px;
+      top: 0;
+      height: 100%;
+      width: 60px;
+      pointer-events: none;
+    }
+
+    /* Logo section */
+    .brand {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 28px;
+    }
+
+    .brand__logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .brand__icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+    }
+
+    .brand__name {
+      font-family: var(--font-logo);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+
+    .brand__name span {
+      color: var(--accent);
+    }
+
+    .brand__tagline {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 400;
+      margin-left: 2px;
+      font-style: italic;
+    }
+
+    /* Food illustration emoji collage */
+    .food-collage {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 36px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .food-collage__main {
+      font-size: 5.5rem;
+      line-height: 1;
+      display: block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+      animation: floatBounce 3s ease-in-out infinite;
+    }
+
+    /* Individual float animations — different rhythm for each emoji */
+    @keyframes floatBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(-12px) rotate(-3deg); }
+    }
+    @keyframes floatBounce2 {
+      0%, 100% { transform: translateY(0) scale(1); }
+      40%       { transform: translateY(-14px) scale(1.08); }
+      70%       { transform: translateY(-6px) scale(0.97); }
+    }
+    @keyframes floatBounce3 {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(-10px) rotate(4deg); }
+    }
+    @keyframes floatBounce4 {
+      0%, 100% { transform: translateY(0) scaleX(1); }
+      45%       { transform: translateY(-16px) scaleX(1.05); }
+    }
+    @keyframes floatBounce5 {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%       { transform: translateY(-8px) rotate(-5deg); }
+    }
+
+    .food-collage__row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      font-size: 3rem;
+      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.3));
+    }
+
+    /* Each emoji gets its own named animation + unique delay & duration */
+    .food-collage__row span:nth-child(1) {
+      display: inline-block;
+      animation: floatBounce2 2.8s ease-in-out infinite;
+      animation-delay: 0s;
+    }
+    .food-collage__row span:nth-child(2) {
+      display: inline-block;
+      animation: floatBounce3 3.2s ease-in-out infinite;
+      animation-delay: 0.4s;
+    }
+    .food-collage__row span:nth-child(3) {
+      display: inline-block;
+      animation: floatBounce4 2.5s ease-in-out infinite;
+      animation-delay: 0.8s;
+    }
+    .food-collage__row span:nth-child(4) {
+      display: inline-block;
+      animation: floatBounce5 3.6s ease-in-out infinite;
+      animation-delay: 0.2s;
+    }
+
+    /* Feature badges */
+    .feature-badges {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 12px 16px;
+      backdrop-filter: blur(10px);
+      transition: var(--transition);
+    }
+
+    .badge:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateX(4px);
+    }
+
+    .badge__icon {
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 69, 0, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .badge__text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+    }
+
+    /* =========================================================
+       RIGHT PANEL
+    ========================================================= */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 32px;
+      background: var(--white);
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 420px;
+      animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Mobile brand (hidden on desktop) */
+    .mobile-brand {
+      display: none;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .mobile-brand__logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .mobile-brand__icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .mobile-brand__name {
+      font-family: var(--font-logo);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--secondary);
+    }
+
+    .mobile-brand__name span {
+      color: var(--primary);
+    }
+
+    .mobile-brand__tagline {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Welcome text */
+    .welcome-text {
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h2 {
+      font-family: var(--font-logo);
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .welcome-text p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* =========================================================
+       TAB SWITCHER
+    ========================================================= */
+    .tab-switcher {
+      display: flex;
+      background: #F1F1F7;
+      border-radius: 50px;
+      padding: 5px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: var(--shadow-btn);
+    }
+
+    /* =========================================================
+       FORMS
+    ========================================================= */
+    .form-panel {
+      display: none;
+      animation: formFade 0.35s ease-out both;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    @keyframes formFade {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Form group */
+    .form-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Input wrapper (for prefix / icon inside) */
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      border: 1.8px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--input-bg);
+      transition: var(--transition);
+      overflow: hidden;
+    }
+
+    .input-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.12);
+      background: var(--white);
+    }
+
+    .input-wrap--error {
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1) !important;
+    }
+
+    .input-prefix {
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 69, 0, 0.06);
+      border-right: 1.8px solid var(--border);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .input-field {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      padding: 13px 14px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--text-dark);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-light);
+    }
+
+    textarea.input-field {
+      resize: none;
+      min-height: 72px;
+      padding-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* Password toggle */
+    .pw-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .pw-toggle:hover {
+      color: var(--primary);
+    }
+
+    .pw-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Error message */
+    .field-error {
+      display: none;
+      font-size: 0.74rem;
+      color: var(--error);
+      margin-top: 5px;
+      font-weight: 500;
+      padding-left: 2px;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
+    /* Forgot password link */
+    .forgot-link {
+      text-align: right;
+      margin-top: -8px;
+      margin-bottom: 14px;
+    }
+
+    .forgot-link a {
+      font-size: 0.78rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .forgot-link a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* =========================================================
+       PASSWORD STRENGTH INDICATOR
+    ========================================================= */
+    .pw-strength {
+      margin-top: 8px;
+    }
+
+    .pw-strength__bar-wrap {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .pw-strength__segment {
+      height: 4px;
+      flex: 1;
+      border-radius: 10px;
+      background: var(--border);
+      transition: background 0.3s ease;
+    }
+
+    .pw-strength__label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: color 0.3s ease;
+    }
+
+    /* Strength states applied via JS */
+    .pw-strength--weak   .pw-strength__segment:nth-child(1) { background: var(--error); }
+    .pw-strength--medium .pw-strength__segment:nth-child(1),
+    .pw-strength--medium .pw-strength__segment:nth-child(2) { background: var(--warning); }
+    .pw-strength--strong .pw-strength__segment { background: var(--success); }
+
+    .pw-strength--weak   .pw-strength__label { color: var(--error); }
+    .pw-strength--medium .pw-strength__label { color: var(--warning); }
+    .pw-strength--strong .pw-strength__label { color: var(--success); }
+
+    /* =========================================================
+       CHECKBOX
+    ========================================================= */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-group label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1.5;
+    }
+
+    .checkbox-group label a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .checkbox-group label a:hover {
+      text-decoration: underline;
+    }
+
+    /* =========================================================
+       BUTTONS
+    ========================================================= */
+    .btn-primary {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      transition: var(--transition);
+      box-shadow: var(--shadow-btn);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(255, 69, 0, 0.45);
+    }
+
+    .btn-primary:hover::after {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .divider__line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider__text {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-light);
+      white-space: nowrap;
+    }
+
+    /* Google sign-in button */
+    .btn-google {
+      width: 100%;
+      padding: 13px 20px;
+      background: var(--white);
+      color: var(--text-dark);
+      border: 1.8px solid var(--border);
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    .btn-google svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-google:hover {
+      border-color: var(--primary);
+      background: #FFF8F6;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    /* Switch link */
+    .switch-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .switch-link a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .switch-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* =========================================================
+       RESPONSIVE — MOBILE (≤ 768px)
+    ========================================================= */
+    @media (max-width: 768px) {
+      .page-wrapper {
+        flex-direction: column;
+        min-height: calc(100vh - 40px);
+      }
+
+      /* Hide left panel entirely */
+      .left-panel {
+        display: none !important;
+      }
+
+      /* Right panel goes full screen */
+      .right-panel {
+        flex: 1;
+        width: 100%;
+        padding: 28px 20px 44px;
+        background: linear-gradient(180deg, #FFF8F6 0%, var(--white) 100%);
+        overflow-x: hidden;
+      }
+
+      .form-container {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* Show mobile brand */
+      .mobile-brand {
+        display: block;
+      }
+
+      .welcome-text h2 {
+        font-size: 1.4rem;
+      }
+
+      .timing-banner {
+        font-size: 0.76rem;
+        padding: 9px 12px;
+      }
+
+      /* Prevent prefix from squishing at narrow widths */
+      .input-prefix {
+        font-size: 0.78rem;
+        padding: 0 8px;
+      }
+
+      /* Let primary button text wrap gracefully */
+      .btn-primary {
+        font-size: 0.88rem;
+        padding: 13px 16px;
+        white-space: normal;
+        line-height: 1.35;
+      }
+
+      .btn-google {
+        font-size: 0.84rem;
+        padding: 12px 14px;
+      }
+
+      .tab-btn {
+        font-size: 0.85rem;
+        padding: 10px 12px;
+      }
+
+      /* Tighten form group spacing slightly */
+      .form-group {
+        margin-bottom: 14px;
+      }
+
+      .switch-link {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Extra-narrow devices (375px and below) */
+    @media (max-width: 400px) {
+      .right-panel {
+        padding: 22px 16px 36px;
+      }
+
+      .tab-btn {
+        font-size: 0.82rem;
+        padding: 9px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================
+       STORE TIMING BANNER (dynamically set via JS)
+  ===================================================== -->
+  <div class="timing-banner" id="timingBanner" role="alert" aria-live="polite">
+    <!-- Content injected by JS -->
+  </div>
+
+  <!-- =====================================================
+       MAIN PAGE WRAPPER — SPLIT SCREEN
+  ===================================================== -->
+  <div class="page-wrapper">
+
+    <!-- LEFT PANEL -->
+    <aside class="left-panel" aria-label="BudgetMein brand panel">
+
+      <!-- Brand / Logo -->
+      <div class="brand">
+        <div class="brand__logo">
+          <div class="brand__icon" aria-hidden="true">🍽️</div>
+          <div>
+            <div class="brand__name">Budget<span>Mein</span></div>
+          </div>
+        </div>
+        <p class="brand__tagline">"Ghar Baitha Order Kar, Budget Mein Kha!"</p>
+      </div>
+
+      <!-- Food Illustration / Emoji Collage -->
+      <div class="food-collage" aria-hidden="true">
+        <span class="food-collage__main">🍔</span>
+        <div class="food-collage__row">
+          <span>🍕</span>
+          <span>🌯</span>
+          <span>🍟</span>
+          <span>🥪</span>
+        </div>
+      </div>
+
+      <!-- Feature Badges -->
+      <div class="feature-badges" aria-label="Key features">
+        <div class="badge">
+          <div class="badge__icon" aria-hidden="true">⚡</div>
+          <span class="badge__text">Fast Delivery — Right to Your Door</span>
+        </div>
+        <div class="badge">
+          <div class="badge__icon" aria-hidden="true">💰</div>
+          <span class="badge__text">Budget Friendly — Eat More, Spend Less</span>
+        </div>
+        <div class="badge">
+          <div class="badge__icon" aria-hidden="true">🕒</div>
+          <span class="badge__text">Open Daily 3:00 PM – 9:00 PM</span>
+        </div>
+      </div>
+
+      <!-- SVG Wave on right edge -->
+      <svg class="left-panel__wave" viewBox="0 0 60 900" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M60 0 Q20 180 50 360 Q80 540 20 720 Q0 810 60 900 L60 0Z" fill="#FFFFFF" />
+      </svg>
+
+    </aside>
+
+    <!-- RIGHT PANEL -->
+    <main class="right-panel" aria-label="Authentication forms">
+      <div class="form-container">
+
+        <!-- Mobile-only brand (shown only on small screens) -->
+        <div class="mobile-brand" aria-label="BudgetMein logo">
+          <div class="mobile-brand__logo">
+            <div class="mobile-brand__icon" aria-hidden="true">🍽️</div>
+            <div class="mobile-brand__name">Budget<span>Mein</span></div>
+          </div>
+          <p class="mobile-brand__tagline">"Ghar Baitha Order Kar, Budget Mein Kha!"</p>
+        </div>
+
+        <!-- Welcome text -->
+        <div class="welcome-text">
+          <h2 id="welcomeHeading">Welcome Back! 👋</h2>
+          <p id="welcomeSubtext">Login to order your favourite food.</p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="tab-switcher" role="tablist" aria-label="Login or Sign Up">
+          <button
+            class="tab-btn active"
+            id="loginTab"
+            role="tab"
+            aria-selected="true"
+            aria-controls="loginPanel"
+            onclick="switchTab('login')"
+          >Login</button>
+          <button
+            class="tab-btn"
+            id="signupTab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="signupPanel"
+            onclick="switchTab('signup')"
+          >Sign Up</button>
+        </div>
+
+        <!-- ===============================================
+             LOGIN FORM
+        =============================================== -->
+        <div class="form-panel active" id="loginPanel" role="tabpanel" aria-labelledby="loginTab">
+          <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="loginEmail">Email Address</label>
+              <div class="input-wrap" id="loginEmailWrap">
+                <input
+                  type="email"
+                  id="loginEmail"
+                  class="input-field"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  aria-required="true"
+                  style="padding-left: 14px;"
+                />
+              </div>
+              <span class="field-error" id="loginEmailError">Please enter a valid email address.</span>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <div class="input-wrap" id="loginPasswordWrap">
+                <input
+                  type="password"
+                  id="loginPassword"
+                  class="input-field"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  aria-required="true"
+                />
+                <button type="button" class="pw-toggle" onclick="togglePassword('loginPassword', this)" aria-label="Toggle password visibility">
+                  <!-- Eye icon -->
+                  <svg id="loginEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+              <span class="field-error" id="loginPasswordError">Password must be at least 8 characters.</span>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="forgot-link">
+              <a href="#" onclick="openForgotModal(); return false;">Forgot Password?</a>
+            </div>
+
+            <!-- Login button -->
+            <button type="submit" class="btn-primary" id="loginBtn">
+              🔑 Login to BudgetMein
+            </button>
+
+            <!-- OR Divider -->
+            <div class="divider" aria-hidden="true">
+              <div class="divider__line"></div>
+              <span class="divider__text">OR</span>
+              <div class="divider__line"></div>
+            </div>
+
+            <!-- Google Sign In -->
+            <button type="button" class="btn-google" onclick="handleGoogleSignIn()" aria-label="Sign in with Google">
+              <!-- Google logo SVG -->
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                <path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
+                <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+              </svg>
+              Continue with Google
+            </button>
+
+            <!-- Switch to Signup -->
+            <p class="switch-link">
+              New here? <a href="#" onclick="switchTab('signup'); return false;">Sign Up — It's Free!</a>
+            </p>
+
+          </form>
+        </div><!-- /loginPanel -->
+
+        <!-- ===============================================
+             SIGNUP FORM
+        =============================================== -->
+        <div class="form-panel" id="signupPanel" role="tabpanel" aria-labelledby="signupTab">
+          <form id="signupForm" onsubmit="handleSignup(event)" novalidate>
+
+            <!-- Full Name -->
+            <div class="form-group">
+              <label for="signupName">Full Name</label>
+              <div class="input-wrap" id="signupNameWrap">
+                <input
+                  type="text"
+                  id="signupName"
+                  class="input-field"
+                  placeholder="Your full name"
+                  autocomplete="name"
+                  aria-required="true"
+                  style="padding-left: 14px;"
+                />
+              </div>
+              <span class="field-error" id="signupNameError">Name cannot be empty.</span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="signupPhone">Phone Number</label>
+              <div class="input-wrap" id="signupPhoneWrap">
+                <span class="input-prefix">🇮🇳 +91</span>
+                <input
+                  type="tel"
+                  id="signupPhone"
+                  class="input-field"
+                  placeholder="Enter 10-digit mobile number"
+                  maxlength="10"
+                  inputmode="numeric"
+                  autocomplete="tel"
+                  aria-required="true"
+                />
+              </div>
+              <span class="field-error" id="signupPhoneError">Please enter a valid 10-digit phone number.</span>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="signupEmail">Email Address</label>
+              <div class="input-wrap" id="signupEmailWrap">
+                <input
+                  type="email"
+                  id="signupEmail"
+                  class="input-field"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  aria-required="true"
+                  style="padding-left: 14px;"
+                />
+              </div>
+              <span class="field-error" id="signupEmailError">Please enter a valid email address.</span>
+            </div>
+
+            <!-- Password with strength indicator -->
+            <div class="form-group">
+              <label for="signupPassword">Password</label>
+              <div class="input-wrap" id="signupPasswordWrap">
+                <input
+                  type="password"
+                  id="signupPassword"
+                  class="input-field"
+                  placeholder="Create a strong password"
+                  autocomplete="new-password"
+                  aria-required="true"
+                  oninput="checkPasswordStrength(this.value)"
+                />
+                <button type="button" class="pw-toggle" onclick="togglePassword('signupPassword', this)" aria-label="Toggle password visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+              <!-- Password strength meter -->
+              <div class="pw-strength" id="pwStrength" aria-live="polite">
+                <div class="pw-strength__bar-wrap" aria-hidden="true">
+                  <div class="pw-strength__segment" id="seg1"></div>
+                  <div class="pw-strength__segment" id="seg2"></div>
+                  <div class="pw-strength__segment" id="seg3"></div>
+                </div>
+                <span class="pw-strength__label" id="pwStrengthLabel"></span>
+              </div>
+              <span class="field-error" id="signupPasswordError">Password must be at least 8 characters.</span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+              <label for="signupConfirmPassword">Confirm Password</label>
+              <div class="input-wrap" id="signupConfirmPasswordWrap">
+                <input
+                  type="password"
+                  id="signupConfirmPassword"
+                  class="input-field"
+                  placeholder="Re-enter your password"
+                  autocomplete="new-password"
+                  aria-required="true"
+                />
+                <button type="button" class="pw-toggle" onclick="togglePassword('signupConfirmPassword', this)" aria-label="Toggle confirm password visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+              <span class="field-error" id="signupConfirmPasswordError">Passwords do not match.</span>
+            </div>
+
+            <!-- Delivery Address -->
+            <div class="form-group">
+              <label>📍 Delivery Address</label>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <!-- GPS Button -->
+                <button type="button" id="saGpsBtn" onclick="getSignupGPS()"
+                  style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#4285F4,#1A73E8);color:#fff;font-family:Poppins,sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+                  📍 Use My Current Location
+                </button>
+                <div id="saGpsMsg" style="font-size:.74rem;display:none;padding:8px 12px;border-radius:8px;line-height:1.6;text-align:center"></div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="flex:1;height:1px;background:#E5E5EF"></div>
+                  <span style="font-size:.7rem;color:#888">ya type karo</span>
+                  <div style="flex:1;height:1px;background:#E5E5EF"></div>
+                </div>
+                <div class="input-wrap" id="signupAddressWrap">
+                  <input type="text" id="saFlat" class="input-field"
+                    placeholder="🏠 Ghar / Flat No. (e.g. H-42) *"
+                    style="padding-left:14px" oninput="buildSignupAddr()" autocomplete="off"/>
+                </div>
+                <div class="input-wrap">
+                  <input type="text" id="saGali" class="input-field"
+                    placeholder="🛣️ Gali / Road No. (e.g. Gali No. 5)"
+                    style="padding-left:14px" oninput="buildSignupAddr()" autocomplete="off"/>
+                </div>
+                <div class="input-wrap">
+                  <input type="text" id="saStreet" class="input-field"
+                    placeholder="🏘️ Mohalla / Area (e.g. Jahangir Puri)"
+                    style="padding-left:14px" oninput="buildSignupAddr()" autocomplete="off"/>
+                </div>
+                <div class="input-wrap">
+                  <input type="text" id="saPINDisplay" class="input-field"
+                    placeholder="📮 PIN Code — 110033"
+                    style="padding-left:14px" maxlength="6" inputmode="numeric"
+                    oninput="checkSignupPin(this.value)" autocomplete="off"/>
+                </div>
+                <input type="hidden" id="saCity" value="Delhi"/>
+                <input type="hidden" id="saState" value="Delhi"/>
+                <input type="hidden" id="saPIN" value="110033"/>
+                <input type="hidden" id="saGPSLat" value=""/>
+                <input type="hidden" id="saGPSLng" value=""/>
+                <div id="saPinMsg" style="display:none;font-size:.74rem;padding:8px 12px;border-radius:8px;line-height:1.6"></div>
+                <input type="hidden" id="signupAddress"/>
+              </div>
+              <span class="field-error" id="signupAddressError">Please enter your House No.</span>
+            </div>
+
+            <!-- Terms Checkbox -->
+            <div class="checkbox-group">
+              <input type="checkbox" id="termsCheck" aria-required="true" />
+              <label for="termsCheck">
+                I agree to the <a href="#" onclick="alert('Terms & Conditions coming soon!'); return false;">Terms &amp; Conditions</a> and <a href="#" onclick="alert('Privacy Policy coming soon!'); return false;">Privacy Policy</a>
+              </label>
+            </div>
+            <span class="field-error" id="termsError" style="margin-top: -10px; margin-bottom: 12px;">You must accept the Terms &amp; Conditions to proceed.</span>
+
+            <!-- Create Account button -->
+            <button type="submit" class="btn-primary" id="signupBtn">
+              🍽️ Create My Account &amp; Start Ordering!
+            </button>
+
+            <!-- OR Divider -->
+            <div class="divider" aria-hidden="true">
+              <div class="divider__line"></div>
+              <span class="divider__text">OR sign up with</span>
+              <div class="divider__line"></div>
+            </div>
+
+            <!-- Google Sign Up -->
+            <button type="button" class="btn-google" onclick="handleGoogleSignIn()" aria-label="Sign up with Google">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                <path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
+                <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+              </svg>
+              Continue with Google
+            </button>
+
+            <!-- Switch to Login -->
+            <p class="switch-link">
+              Already have an account? <a href="#" onclick="switchTab('login'); return false;">Login Here</a>
+            </p>
+
+          </form>
+        </div><!-- /signupPanel -->
+
+      </div><!-- /form-container -->
+    </main><!-- /right-panel -->
+
+  </div><!-- /page-wrapper -->
+
+  <!-- =====================================================
+       JAVASCRIPT — Timing Banner, Tabs, Validation, Animations
+  ===================================================== -->
+  <script>
+    // DEV MODE: keep store open while building/testing
+    // Set to false when you want real opening hours (3PM–9PM).
+    const DEV_ALWAYS_OPEN = true;
+
+    // =========================================================
+    // 1. STORE TIMING BANNER
+    // =========================================================
+    (function initTimingBanner() {
+      const banner = document.getElementById('timingBanner');
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const totalMinutes = hours * 60 + minutes;
+
+      const openMinutes  = 15 * 60;  // 3:00 PM
+      const closeMinutes = 21 * 60;  // 9:00 PM
+
+      if (DEV_ALWAYS_OPEN || (totalMinutes >= openMinutes && totalMinutes < closeMinutes)) {
+        // Store is OPEN
+        banner.textContent = DEV_ALWAYS_OPEN
+          ? '🧪 TEST MODE: Store Open 24/7 — You can order anytime ✅'
+          : '🟢 We\'re Open! Order Now — Closes at 9:00 PM 🍔';
+        banner.classList.add('timing-banner--open');
+      } else if (totalMinutes < openMinutes) {
+        // Before opening
+        banner.textContent = '🕒 We Open Today at 3:00 PM — Come Back Soon! 😋';
+        banner.classList.add('timing-banner--soon');
+      } else {
+        // After closing
+        banner.textContent = '🔴 We\'re Closed — Opens Tomorrow at 3:00 PM 😴';
+        banner.classList.add('timing-banner--closed');
+      }
+    })();
+
+    // =========================================================
+    // 2. TAB SWITCHER
+    // =========================================================
+    function switchTab(tab) {
+      const loginTab     = document.getElementById('loginTab');
+      const signupTab    = document.getElementById('signupTab');
+      const loginPanel   = document.getElementById('loginPanel');
+      const signupPanel  = document.getElementById('signupPanel');
+      const heading      = document.getElementById('welcomeHeading');
+      const subtext      = document.getElementById('welcomeSubtext');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        loginTab.setAttribute('aria-selected', 'true');
+        signupTab.classList.remove('active');
+        signupTab.setAttribute('aria-selected', 'false');
+
+        loginPanel.classList.add('active');
+        signupPanel.classList.remove('active');
+
+        heading.textContent = 'Welcome Back! 👋';
+        subtext.textContent = 'Login to order your favourite food.';
+      } else {
+        signupTab.classList.add('active');
+        signupTab.setAttribute('aria-selected', 'true');
+        loginTab.classList.remove('active');
+        loginTab.setAttribute('aria-selected', 'false');
+
+        signupPanel.classList.add('active');
+        loginPanel.classList.remove('active');
+
+        heading.textContent = 'Join BudgetMein! 🎉';
+        subtext.textContent = 'Create your account and start ordering.';
+      }
+    }
+
+    // =========================================================
+    // 3. PASSWORD SHOW / HIDE TOGGLE
+    // =========================================================
+    const eyeOpenSVG   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeClosedSVG = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+    function togglePassword(fieldId, btn) {
+      const field = document.getElementById(fieldId);
+      const svg   = btn.querySelector('svg');
+      if (field.type === 'password') {
+        field.type = 'text';
+        svg.innerHTML = eyeClosedSVG;
+        btn.setAttribute('aria-label', 'Hide password');
+      } else {
+        field.type = 'password';
+        svg.innerHTML = eyeOpenSVG;
+        btn.setAttribute('aria-label', 'Show password');
+      }
+    }
+
+    // =========================================================
+    // 4. PASSWORD STRENGTH INDICATOR
+    // =========================================================
+    function checkPasswordStrength(password) {
+      const strengthEl    = document.getElementById('pwStrength');
+      const labelEl       = document.getElementById('pwStrengthLabel');
+      const seg1          = document.getElementById('seg1');
+      const seg2          = document.getElementById('seg2');
+      const seg3          = document.getElementById('seg3');
+
+      // Reset segments
+      [seg1, seg2, seg3].forEach(s => s.style.background = 'var(--border)');
+      strengthEl.className = 'pw-strength';
+
+      if (!password) {
+        labelEl.textContent = '';
+        return;
+      }
+
+      let score = 0;
+      if (password.length >= 8)                          score++;
+      if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+      if (/[0-9]/.test(password))                        score++;
+      if (/[^A-Za-z0-9]/.test(password))                score++;
+
+      if (score <= 1) {
+        strengthEl.classList.add('pw-strength--weak');
+        labelEl.textContent = 'Weak';
+      } else if (score === 2 || score === 3) {
+        strengthEl.classList.add('pw-strength--medium');
+        labelEl.textContent = 'Medium';
+      } else {
+        strengthEl.classList.add('pw-strength--strong');
+        labelEl.textContent = 'Strong';
+      }
+    }
+
+    // =========================================================
+    // 5. VALIDATION HELPERS
+    // =========================================================
+    function showError(wrapId, errorId) {
+      document.getElementById(wrapId).classList.add('input-wrap--error');
+      document.getElementById(errorId).classList.add('visible');
+    }
+
+    function clearError(wrapId, errorId) {
+      document.getElementById(wrapId).classList.remove('input-wrap--error');
+      document.getElementById(errorId).classList.remove('visible');
+    }
+
+    function isValidPhone(val) {
+      return /^[6-9]\d{9}$/.test(val.trim());
+    }
+
+    function isValidEmail(val) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+    }
+
+    // Clear errors on input (live clearing)
+    document.getElementById('loginEmail').addEventListener('input', () => clearError('loginEmailWrap', 'loginEmailError'));
+    document.getElementById('loginPassword').addEventListener('input', () => clearError('loginPasswordWrap', 'loginPasswordError'));
+    document.getElementById('signupName').addEventListener('input', () => clearError('signupNameWrap', 'signupNameError'));
+    document.getElementById('signupPhone').addEventListener('input', () => clearError('signupPhoneWrap', 'signupPhoneError'));
+    document.getElementById('signupEmail').addEventListener('input', () => clearError('signupEmailWrap', 'signupEmailError'));
+    document.getElementById('signupPassword').addEventListener('input', () => clearError('signupPasswordWrap', 'signupPasswordError'));
+    document.getElementById('signupConfirmPassword').addEventListener('input', () => clearError('signupConfirmPasswordWrap', 'signupConfirmPasswordError'));
+    document.getElementById('signupAddress').addEventListener('input', () => clearError('signupAddressWrap', 'signupAddressError'));
+
+    // ---- SIGNUP ADDRESS FUNCTIONS ----
+    function buildSignupAddr(){
+      var flat=(document.getElementById('saFlat').value||'').trim();
+      var gali=(document.getElementById('saGali')&&document.getElementById('saGali').value||'').trim();
+      var street=(document.getElementById('saStreet').value||'').trim();
+      var parts=[flat];
+      if(gali)parts.push(gali);
+      if(street)parts.push(street);
+      parts.push('Jahangir Puri, Delhi - 110033');
+      document.getElementById('signupAddress').value=flat?parts.join(', '):'';
+      if(flat) clearError('signupAddressWrap','signupAddressError');
+    }
+
+    function getSignupGPS(){
+      var btn=document.getElementById('saGpsBtn');
+      var msg=document.getElementById('saGpsMsg');
+      if(btn){btn.disabled=true;btn.innerHTML='⏳ Getting location...';}
+      msg.style.cssText='display:block;font-size:.74rem;padding:8px 12px;border-radius:8px;background:#EBF5FB;color:#1A73E8;text-align:center;line-height:1.6';
+      msg.textContent='📡 Detecting your location...';
+      if(!navigator.geolocation){
+        msg.style.cssText='display:block;font-size:.74rem;padding:8px 12px;border-radius:8px;background:#FFF3F3;color:#E53E3E;text-align:center;line-height:1.6';
+        msg.textContent='❌ GPS not supported on this browser. Please type your address below.';
+        if(btn){btn.innerHTML='📍 Use My Current Location';btn.disabled=false;}return;
+      }
+      navigator.geolocation.getCurrentPosition(async function(pos){
+        var lat=pos.coords.latitude,lng=pos.coords.longitude;
+        document.getElementById('saGPSLat').value=lat;
+        document.getElementById('saGPSLng').value=lng;
+        msg.textContent='🔍 Finding your area...';
+        try{
+          var r=await fetch(
+            'https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&zoom=18&addressdetails=1',
+            {headers:{'Accept-Language':'hi,en'}}
+          );
+          var d=await r.json();
+          if(d.address){
+            var a=d.address;
+            // FIXED: avoid city_district which gives "Model Town Tehsil" etc.
+            var houseNo = a.house_number||'';
+            var road    = a.road||a.pedestrian||a.footway||a.path||a.cycleway||'';
+            var area    = a.neighbourhood||a.quarter||a.suburb||'';
+            var pin     = (a.postcode||'').replace(/\D/g,'');
+            if(road){
+              var gi=document.getElementById('saGali');
+              if(gi) gi.value=(houseNo?houseNo+', ':'')+road;
+            }
+            if(area){
+              var si=document.getElementById('saStreet');
+              if(si) si.value=area;
+            }
+            // Auto-fill PIN — always show field, pre-fill if detected
+            var pinDisp=document.getElementById('saPINDisplay');
+            if(pinDisp){
+              pinDisp.value=(pin.length===6)?pin:'110033';
+              checkSignupPin(pinDisp.value);
+            }
+            buildSignupAddr();
+          }
+        }catch(e){}
+        msg.style.cssText='display:block;font-size:.74rem;padding:8px 12px;border-radius:8px;background:#F0FFF4;color:#276749;text-align:center;line-height:1.6';
+        msg.textContent='✅ Area detected! Now enter your exact House / Flat No. above.';
+        if(btn){btn.style.background='linear-gradient(135deg,#28A745,#1E7E34)';btn.innerHTML='✅ Location Captured!';btn.disabled=false;}
+        clearError('signupAddressWrap','signupAddressError');
+      },function(err){
+        msg.style.cssText='display:block;font-size:.74rem;padding:8px 12px;border-radius:8px;background:#FFF3F3;color:#E53E3E;text-align:center;line-height:1.6';
+        msg.textContent=err.code===1
+          ?'❌ Location permission denied. Please allow location access and try again, or type your address below.'
+          :'❌ Could not get GPS location. Please type your address manually below.';
+        if(btn){btn.innerHTML='📍 Use My Current Location';btn.disabled=false;}
+      },{timeout:14000,enableHighAccuracy:true,maximumAge:0});
+    }
+    var signupPinValid=false;
+    function checkSignupPin(val){
+      var msg=document.getElementById('saPinMsg');
+      val=(val||'').replace(/\D/g,'');
+      if(!val||val.length<6){msg.style.display='none';signupPinValid=false;return;}
+      msg.style.display='block';
+      var hidPin=document.getElementById('saPIN');
+      if(val==='110033'){
+        msg.style.cssText='display:block;font-size:.74rem;padding:8px 12px;border-radius:8px;background:#F0FFF4;color:#276749;line-height:1.6';
+        msg.textContent='✅ Great! We deliver to 110033 — Jahangir Puri, Delhi!';
+        signupPinValid=true;
+        if(hidPin)hidPin.value='110033';
+        clearError('signupAddressWrap','signupAddressError');
+      } else {
+        msg.style.cssText='display:block;font-size:.74rem;padding:8px 12px;border-radius:8px;background:#FFF3F3;color:#E53E3E;line-height:1.6';
+        msg.innerHTML='😔 <b>We don\'t deliver to PIN '+val+' yet.</b><br/>We currently serve <b>Jahangir Puri (110033)</b> only.<br/>We\'re growing fast — coming to your area soon! ❤️';
+        signupPinValid=false;
+        if(hidPin)hidPin.value=val;
+      }
+      buildSignupAddr();
+    }
+
+    // Block non-numeric input in phone fields
+    ['signupPhone'].forEach(id => {
+      document.getElementById(id).addEventListener('keypress', function(e) {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+      });
+    });
+
+    // =========================================================
+    // 6. AUTH + Telegram (Direct API — no proxy needed)
+    // =========================================================
+    // Fill in the same bot token + customer chat ID as in home(8).html
+    const TG_BOT_TOKEN_IDX  = '8601047628:AAFJ0GppVLF8Fdz-cAlY7C3qAZFZVGGJeHw';
+    const TG_CUSTOMER_CHAT  = '-5136180352';
+    async function tg(kind, msg) {
+      try {
+        const token  = TG_BOT_TOKEN_IDX;
+        const chatId = TG_CUSTOMER_CHAT;
+        if (!token  || token.startsWith('YOUR_'))  return;
+        if (!chatId || chatId.startsWith('YOUR_')) return;
+        await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            chat_id: chatId, text: msg,
+            parse_mode: 'HTML', disable_web_page_preview: true
+          })
+        });
+      } catch (e) {
+        console.warn('Telegram notify failed', kind, e.message || e);
+      }
+    }
+
+    // =========================================================
+    // 7. LOGIN FORM HANDLER
+    // =========================================================
+    async function handleLogin(event) {
+      event.preventDefault();
+      let isValid = true;
+
+      const email    = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      if (!isValidEmail(email)) {
+        showError('loginEmailWrap', 'loginEmailError');
+        isValid = false;
+      } else {
+        clearError('loginEmailWrap', 'loginEmailError');
+      }
+
+      if (password.length < 8) {
+        showError('loginPasswordWrap', 'loginPasswordError');
+        isValid = false;
+      } else {
+        clearError('loginPasswordWrap', 'loginPasswordError');
+      }
+
+      if (isValid) {
+        const btn = document.getElementById('loginBtn');
+        btn.textContent = '✅ Logging In...';
+        btn.disabled = true;
+        try {
+          if (!window.bmAuthLogin) throw new Error('Auth not initialized');
+          await window.bmAuthLogin(String(email).trim(), String(password));
+          try {
+            const newEmail = String(email).trim().toLowerCase();
+            var existingUser = {};
+            try { existingUser = JSON.parse(localStorage.getItem('bm_user') || '{}'); } catch(e2) {}
+            const oldEmail = (existingUser.email || '').toLowerCase();
+            // Different user → clear ALL old data completely
+            if (oldEmail && oldEmail !== newEmail) {
+              ['bm_orders','bm_feedbacks','bm_addresses','bm_selected_address_id',
+               'bm_default_address_id','bm_ts','bm_to','bm_oc','bm_cart_addr_full',
+               'bm_profile_popup_done','bm_user'].forEach(function(k){
+                localStorage.removeItem(k);
+              });
+              existingUser = {};
+            }
+            existingUser.email = newEmail;
+            localStorage.setItem('bm_user', JSON.stringify(existingUser));
+          } catch (e) {}
+          location.href = 'menu.html';
+        } catch (e) {
+          alert('❌ Login failed. Please check email/password.\n\n' + (e && e.message ? e.message : ''));
+          btn.textContent = '🔑 Login to BudgetMein';
+          btn.disabled = false;
+        }
+      }
+    }
+
+    // =========================================================
+    // 8. SIGN UP FORM HANDLER
+    // =========================================================
+    async function handleSignup(event) {
+      event.preventDefault();
+      let isValid = true;
+
+      const name     = document.getElementById('signupName').value.trim();
+      const phone    = document.getElementById('signupPhone').value;
+      const email    = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirm  = document.getElementById('signupConfirmPassword').value;
+      const address  = document.getElementById('signupAddress').value.trim();
+      const terms    = document.getElementById('termsCheck').checked;
+
+      // Name
+      if (!name) {
+        showError('signupNameWrap', 'signupNameError');
+        isValid = false;
+      } else {
+        clearError('signupNameWrap', 'signupNameError');
+      }
+
+      // Phone
+      if (!isValidPhone(phone)) {
+        showError('signupPhoneWrap', 'signupPhoneError');
+        isValid = false;
+      } else {
+        clearError('signupPhoneWrap', 'signupPhoneError');
+      }
+
+      // Email
+      if (!isValidEmail(email)) {
+        showError('signupEmailWrap', 'signupEmailError');
+        isValid = false;
+      } else {
+        clearError('signupEmailWrap', 'signupEmailError');
+      }
+
+      // Password
+      if (password.length < 8) {
+        showError('signupPasswordWrap', 'signupPasswordError');
+        isValid = false;
+      } else {
+        clearError('signupPasswordWrap', 'signupPasswordError');
+      }
+
+      // Confirm password
+      if (confirm !== password || confirm.length === 0) {
+        showError('signupConfirmPasswordWrap', 'signupConfirmPasswordError');
+        isValid = false;
+      } else {
+        clearError('signupConfirmPasswordWrap', 'signupConfirmPasswordError');
+      }
+
+      // Address — just need house number (GPS or text)
+      var saFlat=(document.getElementById('saFlat').value||'').trim();
+      var saGPSLat=(document.getElementById('saGPSLat')&&document.getElementById('saGPSLat').value||'');
+      var hasAddr=saFlat||saGPSLat;
+      if(!hasAddr){
+        showError('signupAddressWrap','signupAddressError');
+        document.getElementById('signupAddressError').textContent='Please enter your House No. or use GPS location.';
+        isValid=false;
+      } else {
+        clearError('signupAddressWrap','signupAddressError');
+        buildSignupAddr(); // ensure hidden field updated
+      }
+
+      // Terms
+      const termsError = document.getElementById('termsError');
+      if (!terms) {
+        termsError.classList.add('visible');
+        isValid = false;
+      } else {
+        termsError.classList.remove('visible');
+      }
+
+      if (isValid) {
+        const btn = document.getElementById('signupBtn');
+        btn.textContent = '✅ Creating Account...';
+        btn.disabled = true;
+        try {
+          if (!window.bmAuthSignup) throw new Error('Auth not initialized');
+          await window.bmAuthSignup(String(email).trim(), String(password), String(name).trim());
+
+          // New account — clear ALL previous user's data completely
+          try {
+            localStorage.removeItem('bm_orders');
+            localStorage.removeItem('bm_feedbacks');
+            localStorage.removeItem('bm_addresses');
+            localStorage.removeItem('bm_selected_address_id');
+            localStorage.removeItem('bm_default_address_id');
+            localStorage.removeItem('bm_ts');
+            localStorage.removeItem('bm_to');
+            localStorage.removeItem('bm_oc');
+            // Build full address from new simple fields
+            var saFlat2=(document.getElementById('saFlat').value||'').trim();
+            var saGali2=(document.getElementById('saGali')&&document.getElementById('saGali').value||'').trim();
+            var saStreet2=(document.getElementById('saStreet').value||'').trim();
+            var saLat2=(document.getElementById('saGPSLat')&&document.getElementById('saGPSLat').value||'');
+            var saLng2=(document.getElementById('saGPSLng')&&document.getElementById('saGPSLng').value||'');
+            var parts2=[saFlat2];
+            if(saGali2)parts2.push(saGali2);
+            if(saStreet2)parts2.push(saStreet2);
+            parts2.push('Jahangir Puri, Delhi - 110033');
+            var fullAddress=parts2.join(', ');
+            var mapsQuery2=saLat2&&saLng2
+              ?(saLat2+','+saLng2)
+              :((saGali2?saGali2+', ':'')+saStreet2+', Jahangir Puri, Delhi 110033');
+            localStorage.setItem('bm_cart_addr_full',JSON.stringify({
+              flat:saFlat2,gali:saGali2,street:saStreet2,
+              city:'Delhi',state:'Delhi',pin:'110033',
+              full:fullAddress,mapsQuery:mapsQuery2,
+              lat:saLat2,lng:saLng2,hasGPS:!!(saLat2&&saLng2)
+            }));
+            const user = {
+              name,
+              phone: '+91 ' + String(phone).trim(),
+              email: String(email).trim(),
+              address: fullAddress
+            };
+            localStorage.setItem('bm_user', JSON.stringify(user));
+          } catch (e) {}
+
+          // Telegram new customer notification (dev proxy)
+          await tg('customer',
+            '🎉 <b>NEW CUSTOMER!</b>\n──────────────\n👤 <b>Name:</b> ' + name +
+            '\n📱 <b>Phone:</b> +91 ' + String(phone).trim() +
+            '\n✉️ <b>Email:</b> ' + String(email).trim() +
+            '\n📍 <b>Address:</b> ' + address +
+            '\n⏰ ' + new Date().toLocaleString('en-IN')
+          );
+
+          // Redirect happens after Firestore save
+          location.href = 'menu.html';
+        } catch (e) {
+          alert('❌ Signup failed.\n\n' + (e && e.message ? e.message : ''));
+          btn.textContent = '🍽️ Create My Account & Start Ordering!';
+          btn.disabled = false;
+        }
+      }
+    }
+
+    // =========================================================
+    // 8. GOOGLE SIGN-IN
+    // =========================================================
+    async function handleGoogleSignIn() {
+      const btn = event && event.target ? event.target.closest('button') : null;
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Signing in...'; }
+      try {
+        if (!window.bmAuthGoogle) {
+          // Wait for Firebase module to load
+          await new Promise(r => setTimeout(r, 1500));
+        }
+        if (!window.bmAuthGoogle) throw new Error('Google Sign-In not ready. Please refresh and try again.');
+        const result = await window.bmAuthGoogle();
+        // result = { user, isNewUser }
+        const user = result.user;
+        const isNewUser = result.isNewUser;
+
+        // Build user object from Google profile — clear old data if different account
+        const newGEmail = (user.email || '').toLowerCase();
+        var existingUser = {};
+        try { existingUser = JSON.parse(localStorage.getItem('bm_user') || '{}'); } catch(e9) {}
+        const oldGEmail = (existingUser.email || '').toLowerCase();
+        if (oldGEmail && oldGEmail !== newGEmail) {
+          // Different Google account → wipe all old user data
+          ['bm_orders','bm_feedbacks','bm_addresses','bm_selected_address_id',
+           'bm_default_address_id','bm_ts','bm_to','bm_oc','bm_cart_addr_full',
+           'bm_profile_popup_done','bm_user'].forEach(function(k){ localStorage.removeItem(k); });
+          existingUser = {};
+        }
+        // ✅ FIX: Don't keep fake placeholder phone
+        var existingPhone = existingUser.phone||'';
+        if(existingPhone==='+91 XXXXXXXXXX' || existingPhone==='XXXXXXXXXX') existingPhone='';
+        const googleUser = {
+          name: user.displayName || existingUser.name || '',
+          email: user.email || '',
+          phone: existingPhone,
+          address: existingUser.address || ''
+        };
+        localStorage.setItem('bm_user', JSON.stringify(googleUser));
+
+        // Save to Firestore — so details auto-fill next time on any device
+        try{
+          if(user.uid){
+            await saveProfileToFirestore(user.uid, {
+              name: googleUser.name,
+              email: googleUser.email,
+              phone: googleUser.phone !== '+91 XXXXXXXXXX' ? googleUser.phone : ''
+            });
+          }
+        }catch(e2){}
+
+        if (isNewUser) {
+          // New Google user — notify via Telegram
+          if (typeof tg === 'function') {
+            await tg('customer',
+              '🎉 <b>NEW CUSTOMER (Google)!</b>\n──────────────\n👤 <b>Name:</b> ' + googleUser.name +
+              '\n✉️ <b>Email:</b> ' + googleUser.email +
+              '\n⏰ ' + new Date().toLocaleString('en-IN')
+            );
+          }
+          // New Google user — will be prompted in menu if phone missing
+        } else {
+          // Existing user — redirecting
+        }
+        location.href = 'menu.html';
+      } catch (e) {
+        if (btn) { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 48 48" aria-hidden="true" style="width:20px;height:20px;flex-shrink:0"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg> Continue with Google`; }
+        var code = (e && e.code) || '';
+        var msg = 'Google Sign-In failed. Please try again.';
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+          msg = 'Google Sign-In was cancelled. Please try again.';
+        } else if (code === 'auth/popup-blocked') {
+          msg = '⚠️ Popup was blocked by your browser!\n\nPlease allow popups for this website and try again.';
+        } else if (code === 'auth/network-request-failed') {
+          msg = 'No internet connection. Please check and try again.';
+        } else if (code === 'auth/unauthorized-domain') {
+          msg = '⚠️ This domain is not authorized in Firebase.\n\nPlease add it in Firebase Console → Authentication → Settings → Authorized domains.';
+        } else if (e && e.message) {
+          msg = e.message;
+        }
+        alert('❌ ' + msg);
+      }
+    }
+  </script>
+
+  <!-- Firebase Auth (Email/Password + Google) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      updateProfile,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    // Same Firebase project as your menu page
+    const FB = {
+      apiKey: "AIzaSyCVPIRPTwByKE431I5QwcPEmTH9qgcitj8",
+      authDomain: "budgetmein-62bc0.firebaseapp.com",
+      projectId: "budgetmein-62bc0",
+      storageBucket: "budgetmein-62bc0.firebasestorage.app",
+      messagingSenderId: "1097719035074",
+      appId: "1:1097719035074:web:1570114f2b10d6fbe8775b"
+    };
+
+    const app = initializeApp(FB);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+    // Ask Google to always show account picker
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    // ================================================================
+    // SAVE profile to Firestore
+    // ================================================================
+    async function saveProfileToFirestore(uid, data){
+      try{
+        const ref = doc(db,'users',uid);
+        var d = {updatedAt: serverTimestamp()};
+        if(data.name)    d.name    = data.name;
+        if(data.phone)   d.phone   = data.phone;
+        if(data.email)   d.email   = data.email;
+        if(data.address) d.address = data.address;
+        if(data.flat)    d.flat    = data.flat;
+        if(data.street)  d.street  = data.street;
+        if(data.pin)     d.pin     = data.pin;
+        await setDoc(ref, d, {merge:true});
+        console.log('[BudgetMein] ✅ Profile saved uid='+uid);
+      }catch(e){ console.warn('[BudgetMein] Save profile err',e); }
+    }
+
+    // ================================================================
+    // LOAD profile from Firestore — auto-fill, no popup
+    // ================================================================
+    async function loadProfileFromFirestore(uid){
+      try{
+        const snap = await getDoc(doc(db,'users',uid));
+        if(snap.exists()){
+          const d = snap.data();
+          if(d.name||d.phone){
+            var local = {};
+            try{ local=JSON.parse(localStorage.getItem('bm_user')||'{}'); }catch(e2){}
+            if(d.name)    local.name    = d.name;
+            if(d.phone)   local.phone   = d.phone;
+            if(d.email)   local.email   = d.email;
+            if(d.address) local.address = d.address;
+            localStorage.setItem('bm_user', JSON.stringify(local));
+            // Restore address
+            if(d.flat||d.address){
+              localStorage.setItem('bm_cart_addr_full', JSON.stringify({
+                flat:d.flat||'', street:d.street||'',
+                city:'Delhi', state:'Delhi', pin:d.pin||'', full:d.address||''
+              }));
+            }
+            // Profile complete — no popup
+            if(d.phone&&d.name) localStorage.setItem('bm_profile_popup_done','1');
+            console.log('[BudgetMein] ✅ Profile loaded from Firestore');
+            return true;
+          }
+        }
+        return false;
+      }catch(e){ console.warn('[BudgetMein] Load profile err',e); return false; }
+    }
+
+    // ======================================================
+    // AUTO-LOGIN CHECK: If user is already logged in,
+    // skip the login page and go directly to menu
+    // ======================================================
+    onAuthStateChanged(auth, function(user) {
+      // If user just logged out — don't redirect, stay on login page
+      if(sessionStorage.getItem('bm_just_logged_out') === '1'){
+        sessionStorage.removeItem('bm_just_logged_out');
+        return;
+      }
+      if (user) {
+        // ✅ FIX: Detect account switch on login page too
+        try{
+          var lUser = JSON.parse(localStorage.getItem('bm_user')||'{}');
+          var lEmail = (lUser.email||'').toLowerCase().trim();
+          var fEmail = (user.email||'').toLowerCase().trim();
+          if(lEmail && fEmail && lEmail !== fEmail){
+            ['bm_user','bm_orders','bm_feedbacks','bm_addresses','bm_selected_address_id',
+             'bm_default_address_id','bm_ts','bm_to','bm_oc','bm_cart_addr_full',
+             'bm_profile_popup_done'].forEach(function(k){ localStorage.removeItem(k); });
+          }
+        }catch(e){}
+        // Load this user's profile from Firestore
+        loadProfileFromFirestore(user.uid).then(function(loaded){
+          if(!loaded){
+            var local = {};
+            try{ local=JSON.parse(localStorage.getItem('bm_user')||'{}'); }catch(e){}
+            if(!local.email) local.email = user.email||'';
+            if(!local.name && user.displayName) local.name = user.displayName;
+            localStorage.setItem('bm_user', JSON.stringify(local));
+          }
+          window.location.href = 'menu.html';
+        });
+      }
+      // If user is NOT logged in — stay on login page (do nothing)
+    });
+
+    window.bmAuthSignup = async (email, password, displayName) => {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      if (displayName) {
+        try { await updateProfile(cred.user, { displayName }); } catch (e) {}
+      }
+      return cred.user;
+    };
+
+    window.bmAuthLogin = async (email, password) => {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      return cred.user;
+    };
+
+    window.bmAuthResetPassword = async (email) => {
+      // Send reset email — Firebase handles delivery
+      await sendPasswordResetEmail(auth, email.trim().toLowerCase());
+    };
+
+    // Google Sign-In — works for both new & existing users
+    window.bmAuthGoogle = async () => {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      // Check if this is a new user
+      const isNewUser = result._tokenResponse && result._tokenResponse.isNewUser
+        ? true
+        : (user.metadata.creationTime === user.metadata.lastSignInTime);
+      return { user, isNewUser };
+    };
+  </script>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgotOverlay" onclick="closeForgotModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;backdrop-filter:blur(4px)"></div>
+<div id="forgotModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2001;width:min(420px,92vw);background:#fff;border-radius:20px;padding:32px 28px;box-shadow:0 24px 80px rgba(0,0,0,.3)">
+  <!-- Step 1: Enter email -->
+  <div id="fStep1">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:2.5rem;margin-bottom:8px">🔐</div>
+      <h3 style="font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:#1A1A2E;margin-bottom:6px">Forgot Password?</h3>
+      <p style="font-size:.83rem;color:#7B8094;line-height:1.6">No worries! Enter your registered email address and we'll send you a password reset link.</p>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:.78rem;font-weight:600;color:#1A1A2E;display:block;margin-bottom:6px">📧 Email Address</label>
+      <input id="resetEmail" type="email" placeholder="your@email.com" autocomplete="email"
+        style="width:100%;padding:12px 14px;border:1.5px solid #E5E5EF;border-radius:10px;font-family:Poppins,sans-serif;font-size:.88rem;outline:none;transition:border .2s"
+        onfocus="this.style.borderColor='#FF4500'" onblur="this.style.borderColor='#E5E5EF'"
+        onkeydown="if(event.key==='Enter')sendReset()"/>
+      <div id="resetErr" style="font-size:.75rem;color:#E53E3E;margin-top:4px;display:none"></div>
+    </div>
+    <button onclick="sendReset()" id="resetBtn"
+      style="width:100%;padding:13px;border:none;border-radius:50px;background:linear-gradient(135deg,#FF4500,#CC3700);color:#fff;font-family:Poppins,sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;margin-bottom:12px">
+      📧 Send Reset Link
+    </button>
+    <button onclick="closeForgotModal()"
+      style="width:100%;padding:11px;border:1.5px solid #E5E5EF;border-radius:50px;background:#fff;color:#7B8094;font-family:Poppins,sans-serif;font-size:.88rem;font-weight:600;cursor:pointer">
+      Cancel
+    </button>
+  </div>
+  <!-- Step 2: Success -->
+  <div id="fStep2" style="display:none;text-align:center">
+    <div style="font-size:3rem;margin-bottom:12px">📬</div>
+    <h3 style="font-family:'Baloo 2',cursive;font-size:1.35rem;font-weight:800;color:#1A1A2E;margin-bottom:8px">Email Sent!</h3>
+    <p style="font-size:.83rem;color:#7B8094;line-height:1.7;margin-bottom:6px">We've sent a password reset link to:</p>
+    <p id="resetEmailShow" style="font-size:.9rem;font-weight:700;color:#FF4500;margin-bottom:16px"></p>
+    <div style="background:#F0FFF4;border-radius:12px;padding:14px;margin-bottom:20px;font-size:.8rem;color:#276749;line-height:1.8;text-align:left">
+      📋 <b>Next steps:</b><br/>
+      1. Check your email inbox<br/>
+      2. <b style="color:#E53E3E">⚠️ Also check SPAM/JUNK folder!</b><br/>
+      3. Click the reset link in the email<br/>
+      4. Set your new password<br/>
+      5. Come back and login!<br/><br/>
+      💡 Mark email as "Not Spam" so future emails reach inbox directly.
+    </div>
+    <button onclick="closeForgotModal()"
+      style="width:100%;padding:13px;border:none;border-radius:50px;background:linear-gradient(135deg,#FF4500,#CC3700);color:#fff;font-family:Poppins,sans-serif;font-size:.92rem;font-weight:700;cursor:pointer">
+      ✅ Got It — Back to Login
+    </button>
+  </div>
+</div>
+
+<script>
+function openForgotModal(){
+  document.getElementById('forgotOverlay').style.display='block';
+  document.getElementById('forgotModal').style.display='block';
+  document.getElementById('fStep1').style.display='block';
+  document.getElementById('fStep2').style.display='none';
+  document.getElementById('resetEmail').value='';
+  document.getElementById('resetErr').style.display='none';
+  setTimeout(function(){document.getElementById('resetEmail').focus();},100);
+}
+function closeForgotModal(){
+  document.getElementById('forgotOverlay').style.display='none';
+  document.getElementById('forgotModal').style.display='none';
+}
+async function sendReset(){
+  var email=(document.getElementById('resetEmail').value||'').trim();
+  var err=document.getElementById('resetErr');
+  var btn=document.getElementById('resetBtn');
+  err.style.display='none';
+  if(!email||!email.includes('@')||!email.includes('.')){
+    err.style.display='block';
+    err.textContent='Please enter a valid email address!';
+    document.getElementById('resetEmail').focus();
+    return;
+  }
+  btn.innerHTML='⏳ Sending...';
+  btn.disabled=true;
+  btn.style.opacity='.7';
+  try{
+    if(!window.bmAuthResetPassword){
+      // Wait for Firebase to load
+      await new Promise(function(r){setTimeout(r,1500);});
+    }
+    if(!window.bmAuthResetPassword) throw new Error('Firebase not loaded yet. Please wait and try again.');
+    await window.bmAuthResetPassword(email);
+    // SUCCESS
+    document.getElementById('fStep1').style.display='none';
+    document.getElementById('fStep2').style.display='block';
+    document.getElementById('resetEmailShow').textContent=email;
+  }catch(e){
+    var code=e.code||'';
+    var msg='Something went wrong. Please try again.';
+    if(code==='auth/user-not-found'||code==='auth/invalid-email'||code==='auth/invalid-credential'){
+      msg='No BudgetMein account found with this email.\nPlease check the email or sign up first.';
+    } else if(code==='auth/too-many-requests'){
+      msg='Too many attempts! Please wait 5 minutes and try again.';
+    } else if(code==='auth/network-request-failed'){
+      msg='No internet connection. Please check and try again.';
+    } else if(e.message){
+      msg=e.message;
+    }
+    err.style.display='block';
+    err.style.whiteSpace='pre-line';
+    err.textContent='❌ '+msg;
+    btn.innerHTML='📧 Send Reset Link';
+    btn.disabled=false;
+    btn.style.opacity='1';
+  }
+}
+</script>
+</body>
+</html>
