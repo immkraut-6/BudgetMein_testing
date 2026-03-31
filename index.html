@@ -1173,34 +1173,19 @@
     });
 
     // =========================================================
-    // 6. AUTH + Telegram (Direct API ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no proxy needed)
+    // 6. AUTH + Telegram (Telegram via Vercel proxy)
     // =========================================================    // Fill in the same bot token + customer chat ID as in home(8).html
-    const TG_BOT_TOKEN_IDX  = '8601047628:AAFJ0GppVLF8Fdz-cAlY7C3qAZFZVGGJeHw';
-    const TG_CUSTOMER_CHAT  = '-5136180352';
-    async function tg(kind, msg) {
-      try {
-        const token  = TG_BOT_TOKEN_IDX;
-        const chatId = TG_CUSTOMER_CHAT;
-        if (!token  || token.startsWith('YOUR_'))  return;
-        if (!chatId || chatId.startsWith('YOUR_')) return;
-        const resp = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: msg,
-            parse_mode: 'HTML',
-            disable_web_page_preview: true
-          })
-        });
-        const data = await resp.json().catch(function(){ return {}; });
-        if (!resp.ok || data.ok === false) {
-          console.warn('Telegram notify failed', kind, data.description || resp.status);
-        }
-      } catch (e) {
-        console.warn('Telegram notify failed', kind, e.message || e);
-      }
+      async function tg(kind, msg) {
+    try {
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: kind, msg: msg })
+      });
+    } catch(e) {
+      console.warn('Telegram notify failed', kind, e);
     }
+  }
 
     function tgEscape(value) {
       return String(value || '')
