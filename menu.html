@@ -25,7 +25,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import{getFirestore,collection,addDoc,getDocs,getDoc,doc,updateDoc,deleteDoc,query,orderBy,limit,onSnapshot,runTransaction,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import{getFirestore,collection,addDoc,getDocs,getDoc,doc,updateDoc,deleteDoc,query,orderBy,limit,where,onSnapshot,runTransaction,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 const FB={apiKey:"AIzaSyCVPIRPTwByKE431I5QwcPEmTH9qgcitj8",authDomain:"budgetmein-62bc0.firebaseapp.com",projectId:"budgetmein-62bc0",storageBucket:"budgetmein-62bc0.firebasestorage.app",messagingSenderId:"1097719035074",appId:"1:1097719035074:web:1570114f2b10d6fbe8775b"};
 const fbApp=initializeApp(FB);
@@ -588,29 +588,12 @@ window.deleteAllOrdersFromFirebase=async function(){
 };
 window.loadOrdersFromFirebase=async function(){
   try{
-    var u=JSON.parse(localStorage.getItem("bm_user")||"{}");
-    var email=(u.email||"").trim().toLowerCase();
-    var phone=(u.phone||"").replace(/\D/g,"").slice(-10);
-    if(!email&&(!phone||phone.length<6))return null;
-    // Use simple collection fetch — no index needed
-    var snap=await getDocs(collection(db,"orders"));
+    var uid=window._bmUserId||(auth.currentUser&&auth.currentUser.uid)||'';
+    if(!uid)return null;
+    var q=query(collection(db,"orders"),where("userId","==",uid),orderBy("startTime","desc"),limit(30));
+    var snap=await getDocs(q);
     var orders=[];
-    snap.forEach(function(d){
-      var data=d.data();
-      var de=(data.email||"").trim().toLowerCase();
-      var dp=(data.phone||"").replace(/\D/g,"").slice(-10);
-      // Match by EMAIL (primary) OR phone (fallback)
-      if((email&&de===email)||(!email&&phone&&dp===phone&&phone.length>=6)){
-        orders.push({_docId:d.id,...data});
-      }
-    });
-    // Sort newest first
-    orders.sort(function(a,b){
-      var at=a.startTime||0,bt=b.startTime||0;
-      if(typeof at==='object'&&at&&at.seconds)at=at.seconds*1000;
-      if(typeof bt==='object'&&bt&&bt.seconds)bt=bt.seconds*1000;
-      return bt-at;
-    });
+    snap.forEach(function(d){orders.push({_docId:d.id,...d.data()});});
     if(orders.length){
       localStorage.setItem("bm_orders",JSON.stringify(orders));
       return orders;
@@ -1433,7 +1416,7 @@ const BANNER_CLOSED_TEXT = "🔴 We're Closed — Opens Tomorrow at 3:00 PM 😴
 
 // 🧪 TEST MODE — set true to keep store ALWAYS OPEN (for testing)
 // ⚠️  Set back to false before going live!
-const DEV_ALWAYS_OPEN = false;   // ← true = always open | false = use real hours
+const DEV_ALWAYS_OPEN = true;   // ← true = always open | false = use real hours
 
 // 🐞 DEBUG MODE — set true to show debug info in My Orders
 const DEV_SHOW_DEBUG = false;    // ← true = show debug | false = hide
@@ -2194,17 +2177,7 @@ async function placeOrder(){
     time:orderObj.time,
     startTime:nowMs
   };
-  if(typeof window.bmSaveOrder==='function'){
-    window.bmSaveOrder(fbData).catch(function(e){ console.warn('[BudgetMein] bmSaveOrder err',e); });
-  }
-  if(typeof window.bmAddOrderDoc === 'function'){
-    window.bmAddOrderDoc({
-      userId:    currentUser.uid,
-      items:     fbData.itemsFull || [],
-      totalPrice: totalFinal,
-      createdAt: new Date()
-    }).catch(function(e){ console.warn('[BudgetMein] bmAddOrderDoc err',e); });
-  }
+  if(typeof window.bmSaveOrder==='function') window.bmSaveOrder(fbData);
   if(typeof window.bmOrderTG==='function') window.bmOrderTG({id:orderId,platformFee:platFee},items,sub,del,platFee);
 }
 function backToMenu(){
