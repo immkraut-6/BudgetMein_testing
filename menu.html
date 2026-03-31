@@ -1406,8 +1406,8 @@ nav{padding:0 12px;height:56px;gap:8px}
 // Format: hour * 60 + minutes  (24-hour clock)
 // Examples:  2:00 PM = 840 | 3:00 PM = 900 | 4:00 PM = 960
 //            8:00 PM = 1200 | 9:00 PM = 1260 | 10:00 PM = 1320
-const OPEN_FROM_MINUTES  = 0;     // ← TEMP CLOSED (original: 900)
-const OPEN_UNTIL_MINUTES = 0;     // ← TEMP CLOSED (original: 1260)
+const OPEN_FROM_MINUTES  = 900;     // ← TEMP CLOSED (original: 900)
+const OPEN_UNTIL_MINUTES = 1260;     // ← TEMP CLOSED (original: 1260)
 
 // Banner text shown to customers — update if you change timing above
 const BANNER_OPEN_TEXT   = "🟢 We're Open! Order Now — Closes at 9:00 PM 🍔";
@@ -1416,7 +1416,7 @@ const BANNER_CLOSED_TEXT = "🔧 We're Updating — Back Soon! Thank you for you
 
 // 🧪 TEST MODE — set true to keep store ALWAYS OPEN (for testing)
 // ⚠️  Set back to false before going live!
-const DEV_ALWAYS_OPEN = false;  // ← CLOSED FOR TODAY — change back to true to reopen
+const DEV_ALWAYS_OPEN = true;  // ← CLOSED FOR TODAY — change back to true to reopen
 
 // 🐞 DEBUG MODE — set true to show debug info in My Orders
 const DEV_SHOW_DEBUG = false;    // ← true = show debug | false = hide
