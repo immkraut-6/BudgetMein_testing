@@ -741,7 +741,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);overflow-x:hidde
 #ffCard:hover{border-color:var(--p)!important;transform:translateY(-3px);box-shadow:0 8px 28px rgba(255,69,0,.2)!important}
 #cakeCard:hover{border-color:#7C3AED!important;transform:translateY(-3px);box-shadow:0 8px 28px rgba(124,58,237,.2)!important}
 #ffCard:active,#cakeCard:active{transform:scale(.97)!important}
-nav{position:sticky;top:36px;z-index:1150;background:var(--n);display:flex;align-items:center;gap:12px;padding:0 20px;height:60px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+nav{position:sticky;top:36px;z-index:1150;background:var(--n);display:flex;flex-direction:column;padding:0;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .nlogo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
 .nicon{width:38px;height:38px;border-radius:9px;background:transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}.nicon img{width:38px;height:38px;object-fit:cover;border-radius:9px;display:block}
 .nname{font-family:var(--fl);font-size:1.25rem;font-weight:800;color:#fff}.nname span{color:var(--g)}
@@ -767,7 +767,7 @@ nav{position:sticky;top:36px;z-index:1150;background:var(--n);display:flex;align
 .hb.or{background:rgba(255,69,0,.25);border-color:rgba(255,69,0,.5)}
 .hemoji{position:relative;z-index:1;font-size:clamp(3rem,7vw,5.5rem);text-align:center;line-height:1.3;filter:drop-shadow(0 6px 20px rgba(0,0,0,.4));animation:hf 3s ease-in-out infinite;flex-shrink:0}
 @keyframes hf{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.cats{background:var(--w);padding:0 20px;box-shadow:0 2px 10px rgba(0,0,0,.06);position:sticky;top:136px;z-index:900}
+.cats{background:var(--w);padding:0 20px;box-shadow:0 2px 10px rgba(0,0,0,.06);position:sticky;top:134px;z-index:900}
 .cscroll{display:flex;gap:8px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
 .cscroll::-webkit-scrollbar{display:none}
 .cpill{display:flex;align-items:center;gap:6px;padding:7px 18px;border-radius:50px;border:1.5px solid var(--bd);background:var(--w);cursor:pointer;white-space:nowrap;font-family:var(--fb);font-size:.82rem;font-weight:600;color:var(--mu);transition:var(--tr);flex-shrink:0}
@@ -1190,21 +1190,23 @@ nav{padding:0 12px;height:56px;gap:8px}
 
 <div id="banner" role="alert"></div>
 <nav id="mainNav">
-  <!-- Row 1: Logo + Search + Icons (always visible) -->
-  <a href="#" class="nlogo" id="navLogo" onclick="event.preventDefault();showShopPicker()"><div class="nicon"><img src="https://res.cloudinary.com/dklefbj2a/image/upload/v1774639854/BudgetMein_icon_-_Copy-removebg-preview_kjmrap.png" alt="BudgetMein" /></div><div class="nname">Budget<span>Mein</span></div></a>
-  <div class="nsearch"><span style="padding:0 10px;color:rgba(255,255,255,.4)">🔍</span><input id="srch" type="search" placeholder="Search pizza, burger..." autocomplete="off"/><button id="clearBtn" onclick="clearSearch()">✕</button></div>
-  <button class="ncart" onclick="openProfile()" aria-label="Profile" style="font-size:1.25rem">👤</button>
-  <button class="ncart" onclick="openCart()" aria-label="Cart">🛒<span class="cbadge" id="nbadge">0</span></button>
-</nav>
-<!-- SHOP SWITCHER — inside nav, below main row, always visible when in a shop -->
-<div id="shopSwitcherBar" style="display:none;position:sticky;top:96px;z-index:1100;background:linear-gradient(90deg,#16213E,#1A1A2E);border-bottom:1px solid rgba(255,255,255,.1);padding:0 16px;">
-  <div style="display:flex;align-items:center;gap:8px;height:40px;overflow-x:auto;scrollbar-width:none">
-    <button onclick="goBackToShopPicker()" style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50px;padding:4px 12px;font-size:.71rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0">&#x2190; All Shops</button>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,.15);flex-shrink:0"></div>
-    <button id="ssBtnFf" onclick="enterShop('fastfood')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:.71rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);transition:all .2s">&#x1F355; Fry Day</button>
-    <button id="ssBtnCake" onclick="enterShop('cake')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:.71rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);transition:all .2s">&#x1F382; Bakery</button>
+  <!-- Row 1: Logo + Search + Icons -->
+  <div style="display:flex;align-items:center;gap:12px;padding:0 20px;height:60px;width:100%">
+    <a href="#" class="nlogo" id="navLogo" onclick="event.preventDefault();showShopPicker()"><div class="nicon"><img src="https://res.cloudinary.com/dklefbj2a/image/upload/v1774639854/BudgetMein_icon_-_Copy-removebg-preview_kjmrap.png" alt="BudgetMein" /></div><div class="nname">Budget<span>Mein</span></div></a>
+    <div class="nsearch"><span style="padding:0 10px;color:rgba(255,255,255,.4)">🔍</span><input id="srch" type="search" placeholder="Search pizza, burger..." autocomplete="off"/><button id="clearBtn" onclick="clearSearch()">✕</button></div>
+    <button class="ncart" onclick="openProfile()" aria-label="Profile" style="font-size:1.25rem">👤</button>
+    <button class="ncart" onclick="openCart()" aria-label="Cart">🛒<span class="cbadge" id="nbadge">0</span></button>
   </div>
-</div>
+  <!-- Row 2: Shop Switcher — hidden on shop picker, shown inside any shop -->
+  <div id="shopSwitcherBar" style="display:none;width:100%;background:rgba(0,0,0,.25);border-top:1px solid rgba(255,255,255,.08);padding:0 16px;">
+    <div style="display:flex;align-items:center;gap:8px;height:38px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+      <button onclick="goBackToShopPicker()" style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:50px;padding:4px 11px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0">&#x2190; All Shops</button>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,.15);flex-shrink:0"></div>
+      <button id="ssBtnFf" onclick="enterShop('fastfood')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:50px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">&#x1F355; Fry Day</button>
+      <button id="ssBtnCake" onclick="enterShop('cake')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:50px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">&#x1F382; Bakery</button>
+    </div>
+  </div>
+</nav>
 <!-- SHOP PICKER -->
 <div id="shopPicker" style="display:none;background:var(--bg)">
   <!-- Hero welcome banner -->
@@ -2051,7 +2053,7 @@ const OPEN_FROM_MINUTES  = FASTFOOD_OPEN_FROM;
 const OPEN_UNTIL_MINUTES = FASTFOOD_OPEN_UNTIL;
 
 // TEST MODE — true = both shops always open (for testing only)
-const DEV_ALWAYS_OPEN = false;  // ⬅️ CHANGE THIS TO true TO TEST ORDERING (both shops open 24/7)
+const DEV_ALWAYS_OPEN = true;  // ⬅️ CHANGE THIS TO true TO TEST ORDERING (both shops open 24/7)
 // DEBUG MODE
 const DEV_SHOW_DEBUG = false;
 
@@ -4901,7 +4903,7 @@ function updateShopSwitcher(shop){
   var ssb=document.getElementById('shopSwitcherBar');
   var btnFf=document.getElementById('ssBtnFf');
   var btnCake=document.getElementById('ssBtnCake');
-  if(ssb) ssb.style.display= shop ? 'block' : 'none';
+  if(ssb) ssb.style.display= shop ? 'flex' : 'none';
   if(btnFf){
     if(shop==='fastfood'){
       btnFf.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:50px;font-size:.71rem;font-weight:700;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:none;background:linear-gradient(135deg,#FF4500,#CC3700);color:#fff;cursor:default;';
