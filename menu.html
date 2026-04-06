@@ -2039,21 +2039,21 @@ document.getElementById('srch').addEventListener('input',function(){
 // ============================================================
 
 // ── FAST FOOD: Fry Day ──
-const FASTFOOD_OPEN_FROM    = 900;   // 3:00 PM
-const FASTFOOD_OPEN_UNTIL   = 1260;  // 9:00 PM
-const FASTFOOD_FORCED_CLOSE = true;  // true = always closed regardless of time
+const FASTFOOD_OPEN_FROM    = 900;   // 3:00 PM  (15 × 60 = 900 minutes)
+const FASTFOOD_OPEN_UNTIL   = 1260;  // 9:00 PM  (21 × 60 = 1260 minutes)
+const FASTFOOD_FORCED_CLOSE = false; // false = use timing above (set true to force close)
 
 // ── CAKE SHOP: Shri Ram Ji Bakery ──
-const CAKE_OPEN_FROM    = 600;    // 10:00 AM
-const CAKE_OPEN_UNTIL   = 1260;   // 9:00 PM
+const CAKE_OPEN_FROM    = 600;    // 10:00 AM (10 × 60 = 600 minutes)
+const CAKE_OPEN_UNTIL   = 1260;   // 9:00 PM  (21 × 60 = 1260 minutes)
 const CAKE_FORCED_CLOSE = false;  // false = use timing above
 
 // Legacy aliases (do not remove)
 const OPEN_FROM_MINUTES  = FASTFOOD_OPEN_FROM;
 const OPEN_UNTIL_MINUTES = FASTFOOD_OPEN_UNTIL;
 
-// TEST MODE — true = both shops always open (for testing only)
-const DEV_ALWAYS_OPEN = false;  // ⬅️ CHANGE THIS TO true TO TEST ORDERING (both shops open 24/7)
+// TEST MODE — set false for production (uses real shop timings above)
+const DEV_ALWAYS_OPEN = false; // false = use real timings
 // DEBUG MODE
 const DEV_SHOW_DEBUG = false;
 
@@ -4881,8 +4881,8 @@ function updateShopStatusBadges(){
     if(open){el.style.cssText='display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700;margin-bottom:7px;background:#F0FFF4;color:#16a34a;border:1px solid #B7F5C8';el.textContent='Open Now';}
     else{el.style.cssText='display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700;margin-bottom:7px;background:#FFF0F0;color:var(--er);border:1px solid #FFCDD2';el.textContent=closedLabel;}
   }
-  badge(ffB, DEV_ALWAYS_OPEN||(isOpen&&!FASTFOOD_FORCED_CLOSE), FASTFOOD_FORCED_CLOSE?'Closed':'Closed');
-  badge(ckB, DEV_ALWAYS_OPEN||(isCakeOpen&&!CAKE_FORCED_CLOSE), 'Closed');
+  badge(ffB, isOpen||DEV_ALWAYS_OPEN, 'Closed · Opens 3:00 PM');
+  badge(ckB, isCakeOpen||DEV_ALWAYS_OPEN, 'Closed · Opens 10:00 AM');
   var ffCard=document.getElementById('ffCard');
   var ckCard=document.getElementById('cakeCard');
   if(ffCard)ffCard.style.opacity=(FASTFOOD_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)?'0.82':'1';
@@ -4939,7 +4939,7 @@ function enterShop(shop){
     if(ckv)ckv.style.display='none';
     if(msec)msec.style.display='block';
     var notice=document.getElementById('ffClosedNotice');
-    if(notice)notice.style.display=(FASTFOOD_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)?'flex':'none';
+    if(notice)notice.style.display=(!isOpen&&!DEV_ALWAYS_OPEN)?'flex':'none';
     setTimeout(function(){
       var pb=document.querySelector('#catrow .cpill[onclick*="pizza"]');
       if(pb&&typeof fcat==='function')fcat(pb,'pizza');
