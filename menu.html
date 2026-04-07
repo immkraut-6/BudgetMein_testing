@@ -48,10 +48,10 @@ window.bmAddOrderDoc = async function(payload){
       totalPrice: payload.totalPrice,
       createdAt:  payload.createdAt
     });
-    console.log('[BudgetMein] ? Direct order doc saved | docId=' + ref.id);
+
     return ref.id;
   }catch(e){
-    console.warn('[BudgetMein] bmAddOrderDoc error', e);
+
   }
 };
 
@@ -118,7 +118,7 @@ window.bmGetNextOrderId = async function(){
     });
     return 'BM-' + String(nextNum).padStart(4,'0');
   }catch(e){
-    console.warn('[BudgetMein] Order ID fallback to local',e);
+
     // Fallback ï¿½ use timestamp
     return 'BM-' + Date.now().toString().slice(-6);
   }
@@ -134,7 +134,7 @@ window.bmCheckHasOrdered = async function(uid){
     const snap = await getDoc(doc(db,'users',uid));
     return snap.exists() && snap.data().hasOrdered === true;
   }catch(e){
-    console.warn('[BudgetMein] bmCheckHasOrdered error',e);
+
     return false; // Default false = first order (safe ï¿½ will correct on Firestore recovery)
   }
 };
@@ -142,10 +142,10 @@ window.bmSetHasOrdered = async function(uid){
   try{
     const {setDoc:_sd}=await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js');
     await _sd(doc(db,'users',uid),{hasOrdered:true,updatedAt:serverTimestamp()},{merge:true});
-    console.log('[BudgetMein] ? hasOrdered:true saved to Firestore uid='+uid);
+
     return true;
   }catch(e){
-    console.warn('[BudgetMein] ? bmSetHasOrdered error',e);
+
     return false;
   }
 };
@@ -215,7 +215,7 @@ window.bmSaveUserProfile = async function(uidOrEmail, profileData){
     // Use current Firebase auth UID (most reliable)
     const currentUser = auth.currentUser;
     const uid = currentUser ? currentUser.uid : uidOrEmail;
-    if(!uid){ console.warn('[BudgetMein] No UID for profile save'); return; }
+    if(!uid){ return; return; }
     const userRef = doc(db, 'users', uid);
     const {setDoc} = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js');
     var saveData = {updatedAt: serverTimestamp()};
@@ -237,9 +237,9 @@ window.bmSaveUserProfile = async function(uidOrEmail, profileData){
     saveData.defaultAddressId = profileData.defaultAddressId || addrBook.defaultAddressId || '';
     saveData.selectedAddressId = profileData.selectedAddressId || addrBook.selectedAddressId || saveData.defaultAddressId || '';
     await setDoc(userRef, saveData, {merge: true});
-    console.log('[BudgetMein] ? Profile saved to Firestore uid='+uid);
+
   }catch(e){
-    console.warn('[BudgetMein] Could not save profile',e);
+
   }
 };
 
@@ -311,13 +311,13 @@ window.bmLoadUserProfile = async function(uid){
 
         // Mark profile complete ï¿½ no popup
         if(data.phone && data.name) localStorage.setItem('bm_profile_popup_done','1');
-        console.log('[BudgetMein] Profile loaded from Firestore ?');
+
         return true;
       }
     }
     return false;
   }catch(e){
-    console.warn('[BudgetMein] Could not load profile',e);
+
     return false;
   }
 };
@@ -343,7 +343,7 @@ onAuthStateChanged(auth, async function(user){
     var firebaseEmail = (user.email||'').toLowerCase().trim();
     // If uid or email doesn't match ? completely different person on this device
     if((lastUid && lastUid !== user.uid) || (localEmail && firebaseEmail && localEmail !== firebaseEmail)){
-      console.log('[BudgetMein] Different account detected ï¿½ clearing old data');
+
       ['bm_user','bm_orders','bm_feedbacks','bm_addresses','bm_selected_address_id',
        'bm_default_address_id','bm_ts','bm_to','bm_oc','bm_cart_addr_full',
        'bm_profile_popup_done','bm_pwa_installed','bm_active_uid'].forEach(function(k){
@@ -406,12 +406,8 @@ onAuthStateChanged(auth, async function(user){
   var delay = Math.max(0, 1400 - elapsed);
   setTimeout(function(){ if(typeof window._bmHideSplash==='function') window._bmHideSplash(); }, delay);
 });
-// SECURE: Token lives in Vercel Environment Variables (TG_BOT_TOKEN)
-// Calls /api/telegram serverless function - token never exposed to browser
-const TG_BOT_TOKEN = ''; // Removed - handled server-side via /api/telegram
-const TG_CHAT_ID   = '6932599524';
+// Sends notifications via /api/telegram serverless function (token is server-side only)
 async function tg(kind, msg){
-  // Try /api/telegram serverless route first
   try{
     const resp = await fetch("/api/telegram", {
       method:  "POST",
@@ -419,36 +415,14 @@ async function tg(kind, msg){
       body:    JSON.stringify({ kind, msg })
     });
     const data = await resp.json().catch(()=>({}));
-    if(resp.ok && data.ok !== false){
-      return; // ? Success via serverless
+    if(!resp.ok || data.ok===false){
+      // silent fail — no sensitive info logged
     }
-    console.warn("TG serverless error, falling back:", data.description||JSON.stringify(data));
   }catch(e){
-    console.warn("TG serverless unavailable, using direct fallback:", e.message||e);
-  }
-  // Direct Telegram Bot API fallback
-  try{
-    const fbResp = await fetch(
-      'https://api.telegram.org/bot'+TG_BOT_TOKEN+'/sendMessage',
-      {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          chat_id:    TG_CHAT_ID,
-          text:       msg,
-          parse_mode: 'HTML'
-        })
-      }
-    );
-    const fbData = await fbResp.json().catch(()=>({}));
-    if(!fbData.ok){
-      console.warn('TG direct error:', fbData.description||JSON.stringify(fbData));
-    }
-  }catch(e2){
-    console.warn('TG direct fallback also failed:', e2.message||e2);
+    // silent fail
   }
 }
-window.tg = tg; // expose to regular scripts
+window.tg = tg; 
 // ================================================================
 // CANCEL COUNT HELPERS ï¿½ exposed to regular scripts
 // Must live here (module scope) so getDoc/updateDoc/etc are in scope
@@ -473,12 +447,12 @@ window.bmIncrementCancelCount = async function(){
       cancelLog:{date:new Date().toDateString(), count:current+1},
       updatedAt:serverTimestamp()
     });
-  }catch(e){ console.warn('bmIncrementCancelCount err',e); }
+  }catch(e){  }
 };
 
 // ================================================================
 // GET ORDER FROM FIRESTORE ï¿½ exposed to regular scripts
-// Must live here (module scope) so query/collection/etc are in scope
+
 // ================================================================
 window.bmGetOrderFromFirestore = async function(orderId){
   try{
@@ -498,7 +472,7 @@ window.bmGetOrderFromFirestore = async function(orderId){
     });
     return found;
   }catch(e){
-    console.warn('bmGetOrderFromFirestore err', e);
+
     return null;
   }
 };
@@ -537,9 +511,9 @@ window.bmSaveOrder=async function(orderData){
     };
     const ref=await addDoc(collection(db,'orders'),firestoreData);
     window._activeOrderDocId=ref.id;
-    console.log('? Order saved to Firestore | orderId='+orderData.id+' | docId='+ref.id);
+
     return ref.id;
-  }catch(e){console.warn('FB err',e);}
+  }catch(e){}
 };
 window.bmOrderTG=async function(order,items,sub,del,plat){
   const u=JSON.parse(localStorage.getItem('bm_user')||'{}');
@@ -622,9 +596,9 @@ window.bmLoadMenuFromFirestore=async function(){
       });
       renderMenu();renderCart();
     }
-    console.log('? Menu prices loaded from Firestore');
+
     return true;
-  }catch(e){console.warn('Menu Firestore load err',e);return false;}
+  }catch(e){return false;}
 };
 window.checkOrderStatus=async function(orderId){
   try{
@@ -650,7 +624,7 @@ window.markOrderDelivered=async function(orderId){
     });
     await Promise.all(promises);
     return true;
-  }catch(e){console.warn("markDelivered err",e);return false;}
+  }catch(e){return false;}
 };
 window.cancelOrderInFirebase=async function(orderId, reason){
   // Fast path: use the doc ID saved when order was placed
@@ -658,9 +632,9 @@ window.cancelOrderInFirebase=async function(orderId, reason){
   if(directDocId){
     try{
       await updateDoc(doc(db,"orders",directDocId),{status:"Cancelled",cancelReason:reason||"",cancelledAt:Date.now()});
-      console.log("[BM] cancelOrder direct OK | docId="+directDocId);
+
       return true;
-    }catch(e2){ console.warn("[BM] direct cancel failed, trying query",e2); }
+    }catch(e2){  }
   }
   // Fallback: query by userId + orderId
   var uid=window._bmUserId||(auth.currentUser&&auth.currentUser.uid)||"";
@@ -688,8 +662,8 @@ window.deleteOrderFromFirebase=async function(orderId){
       if(d.data().id===orderId) promises.push(deleteDoc(doc(db,"orders",d.id)));
     });
     await Promise.all(promises);
-    console.log("? Deleted from Firebase:",orderId);
-  }catch(e){console.warn("Firebase delete err",e);}
+
+  }catch(e){}
 };
 window.deleteAllOrdersFromFirebase=async function(){
   try{
@@ -703,8 +677,8 @@ window.deleteAllOrdersFromFirebase=async function(){
       if(!phone||dp===phone||dp==='') promises.push(deleteDoc(doc(db,"orders",d.id)));
     });
     await Promise.all(promises);
-    console.log("? All orders deleted from Firebase");
-  }catch(e){console.warn("Firebase deleteAll err",e);}
+
+  }catch(e){}
 };
 window.loadOrdersFromFirebase=async function(){
   try{
@@ -726,7 +700,7 @@ window.loadOrdersFromFirebase=async function(){
       return orders;
     }
     return null;
-  }catch(e){console.warn("FB load err",e);return null;}
+  }catch(e){return null;}
 };
 </script>
 
@@ -2224,7 +2198,7 @@ const CAKE_FORCED_CLOSE = false;  // false = use timing above
 const OPEN_FROM_MINUTES  = FASTFOOD_OPEN_FROM;
 const OPEN_UNTIL_MINUTES = FASTFOOD_OPEN_UNTIL;
 
-// TEST MODE ï¿½ set false for production (uses real shop timings above)
+// Set to false for production
 const DEV_ALWAYS_OPEN = false; // false = use real timings
 // DEBUG MODE
 const DEV_SHOW_DEBUG = false;
@@ -2353,20 +2327,20 @@ function checkStore(){
   if(b){
     b.className='';
     if(activeShop==='fastfood'){
-      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='TEST MODE: Store Open 24/7';}
+      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='🟢 Open';}
       else if(FASTFOOD_FORCED_CLOSE){b.className='bc';b.textContent='Fry Day is closed - try our bakery shop';}
       else if(isOpen){b.className='bo';b.textContent='Fry Day is open - closes at 9:00 PM';}
       else if(m<FASTFOOD_OPEN_FROM){b.className='bs';b.textContent='Fry Day Opens at 3:00 PM';}
       else{b.className='bc';b.textContent='Fry Day is closed - opens tomorrow at 3:00 PM';}
     } else if(activeShop==='cake'){
-      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='TEST MODE: Bakery Open 24/7';}
+      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='🟢 Open';}
       else if(CAKE_FORCED_CLOSE){b.className='bc';b.textContent='Shri Ram Ji Bakery is Closed';}
       else if(isCakeOpen){b.className='bo';b.textContent='Shri Ram Ji Bakery is open - closes at 9:00 PM';}
       else if(m<CAKE_OPEN_FROM){b.className='bs';b.textContent='Bakery Opens at 10:00 AM';}
       else{b.className='bc';b.textContent='Bakery closed - opens tomorrow at 10:00 AM';}
     } else {
       const anyOpen=isOpen||isCakeOpen;
-      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='TEST MODE: All Shops Open 24/7';}
+      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='🟢 Open';}
       else if(anyOpen){b.className='bo';b.textContent="We're Open! Choose your shop below";}
       else{b.className='bc';b.textContent='All shops closed - Fast Food: 3-9 PM | Bakery: 10 AM-9 PM';}
     }
@@ -2581,7 +2555,7 @@ async function bmCheckHasOrdered(uid){
   // ? FIX: Delegate to module-level window.bmCheckHasOrdered which has Firestore db access.
   // The old code used `db` directly ï¿½ but `db` is module-scoped and inaccessible in regular
   // scripts ? ReferenceError caught silently ? always returned false ? every login = first
-  // order = free delivery BUG FIXED by using the module-exposed window function below.
+  
   if(typeof window.bmCheckHasOrdered==='function') return window.bmCheckHasOrdered(uid);
   return false; // Safe fallback
 }
@@ -2592,11 +2566,11 @@ async function preloadFirstOrderStatus(uid){
   try{
     var hasOrdered = await bmCheckHasOrdered(uid);
     isFirstOrderUser = !hasOrdered;
-    console.log('[BudgetMein] First order status:', isFirstOrderUser ? 'YES - free delivery' : 'NO - ?25 delivery');
+
   }catch(e){
     // On error, default to ?25 (safe ï¿½ never give free delivery on uncertainty)
     isFirstOrderUser = false;
-    console.warn('[BudgetMein] Could not check first order status, defaulting to ?25', e);
+
   }
   renderCart(); // Re-render so cart immediately shows correct delivery fee
 }
@@ -3121,15 +3095,15 @@ async function placeOrder(){
   if(_uid){
     // Use window.bmSetHasOrdered (module-level, has Firestore db access).
     if(typeof window.bmSetHasOrdered==='function'){
-      window.bmSetHasOrdered(_uid).catch(function(e){ console.warn('[BudgetMein] bmSetHasOrdered err',e); });
+      window.bmSetHasOrdered(_uid).catch(function(){});
     } else {
       // Fallback (should not normally reach here)
       try{
         var {setDoc: _sd2, doc: _d2, serverTimestamp: _st2} = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js');
         await _sd2(_d2(db, 'users', _uid), { hasOrdered: true, updatedAt: _st2() }, { merge: true });
-        console.log('[BudgetMein] ? hasOrdered written to Firestore (fallback)');
+
       }catch(e){
-        console.warn('[BudgetMein] ? Could not write hasOrdered to Firestore', e);
+
       }
     }
     // Always update the in-memory flag so the current session is accurate immediately
@@ -3348,7 +3322,7 @@ function openProfile(view){
     }).catch(function(){});
   }
   }catch(e){
-    console.warn('openProfile err',e);
+
     document.getElementById('pOverlay').classList.add('on');
     document.getElementById('pSidebar').classList.add('on');
     document.body.style.overflow='hidden';
@@ -3513,7 +3487,7 @@ function renderProfileOrders(orders){
     // AUTO-EXPAND so users can actually see the orders without extra clicks
     document.getElementById('ordBody').classList.add('open');
     document.getElementById('ordArrow').classList.add('open');
-  }catch(e){console.warn('renderProfileOrders err',e);}
+  }catch(e){}
 }
 
 function toggleOrders(){
@@ -3552,7 +3526,7 @@ async function saveProfile(){
     // Claim phone in Firestore
     if(phoneDigits.length===10){
       if(typeof window.bmClaimCustomerPhone !== 'function'){
-        console.warn('[BudgetMein] bmClaimCustomerPhone not ready, skipping claim');
+
       } else {
         try{
           await window.bmClaimCustomerPhone(phoneDigits, {email:email,name:name});
@@ -3564,7 +3538,7 @@ async function saveProfile(){
             bmAlert('Phone Taken','This number is already linked to another account. Please use a different number.','warning');
             return;
           }
-          console.warn('[BudgetMein] Phone claim skipped:',msg);
+
         }
       }
     }
@@ -3599,7 +3573,7 @@ async function saveProfile(){
     var btn2=document.getElementById('profSaveBtn');
     if(ind2) ind2.classList.remove('show');
     if(btn2){btn2.disabled=false;btn2.textContent='Save Changes';}
-    console.error('[BudgetMein] saveProfile error:',e);
+
     bmAlert('Error','Could not save profile. Please try again. Error: '+((e&&e.message)||'unknown'),'error');
   }
 }
@@ -3732,7 +3706,7 @@ function syncCartAddressFromDefault(id){
     // ? FIX: Immediately update cart address display if cart is open
     var cartAddrDisp=document.getElementById('cartAddrDisplay');
     if(cartAddrDisp) cartAddrDisp.textContent=(found.address||addrObj.full||'')+(addrObj.hasGPS?' | GPS':'');
-  }catch(e){console.warn('[BM] syncCartAddress err',e);}
+  }catch(e){}
 }
 
 // ---- ADDRESS MODAL ----
@@ -3925,7 +3899,7 @@ const TSTEPS=[
   {emoji:'&#10004;',name:'Delivered!',min:42,msg:'Enjoy your meal.'}
 ];
 let _timerIv=null;
-let _forceDelivered=false; // set true when admin marks delivered via Firebase
+let _forceDelivered=false;
 
 function startOrderTimer(orderId){
   localStorage.setItem('bm_ts',Date.now());
@@ -3945,7 +3919,7 @@ function getTimeAt(offsetMin){
   return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
 }
 
-// Poll Firebase every 15 sec to check if admin marked delivered
+
 let _pollIv=null;
 function startFirebasePoll(orderId){
   if(_pollIv)clearInterval(_pollIv);
@@ -4009,7 +3983,7 @@ function renderTracker(){
       cd.textContent=(prev?prev.name:'Processing')+'... "'+next.name+'" in ~'+rem+' min';
     } else {cd.style.display='none';}
     updateDeliveryBoyBtn(elapsed);
-  }catch(e){console.warn('tracker err',e);}
+  }catch(e){}
 }
 
 function updateDeliveryBoyBtn(elapsed){
@@ -4039,7 +4013,7 @@ function initTracker(){
         }
       }catch(e){}
     },10000); // update every 10 sec
-  }catch(e){console.warn('initTracker err',e);}
+  }catch(e){}
 }
 
 function triggerDelivered(){
@@ -4081,7 +4055,7 @@ function triggerDelivered(){
       }
     }
   }catch(e){
-    console.warn('triggerDelivered local update failed',e);
+
   }
 }
 function showConfetti(){
@@ -4274,7 +4248,7 @@ function toMs(st){
 }
 
 async function getOrderFromFirestore(orderId){
-  // Delegates to module-scoped helper so Firebase imports (query, collection, etc.) are in scope
+  
   return window.bmGetOrderFromFirestore(orderId);
 }
 
@@ -4319,7 +4293,7 @@ async function _openCancelModalAsync(orderId){
     document.getElementById('cancelModal').classList.add('on');
     document.body.style.overflow='hidden';
   }catch(e){
-    console.error('openCancelModal err',e);
+
     bmAlert('Error','Could not load order. Please try again.','error');
   }
 }
@@ -4363,10 +4337,10 @@ async function _confirmCancelOrderAsync(){
         var fo=JSON.parse(localStorage.getItem('bm_orders')||'[]');
         if(typeof renderProfileOrders==='function') renderProfileOrders(fo);
         else if(typeof showOrderHistory==='function') showOrderHistory();
-      }catch(re){console.warn('[BM] post-cancel UI err',re);}
+      }catch(re){}
     });
   }catch(e){
-    console.error('confirmCancelOrder err',e);
+
     if(btn){btn.disabled=false;btn.textContent='Cancel Order';}
     bmAlert('Error','Could not cancel order. Please try again or call: +91 96258 67683','warning');
   }
