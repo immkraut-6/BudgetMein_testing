@@ -407,9 +407,8 @@ onAuthStateChanged(auth, async function(user){
   setTimeout(function(){ if(typeof window._bmHideSplash==='function') window._bmHideSplash(); }, delay);
 });
 // SECURE: Token lives in Vercel Environment Variables (TG_BOT_TOKEN)
-// Calls /api/telegram serverless function ï¿½ token never exposed to browser
-// Falls back to direct Telegram Bot API if serverless endpoint fails
-const TG_BOT_TOKEN = '7556310392:AAFmVGPWPYfmQhefqkqNAEJSY8EcMqGI_Wk';
+// Calls /api/telegram serverless function - token never exposed to browser
+const TG_BOT_TOKEN = ''; // Removed - handled server-side via /api/telegram
 const TG_CHAT_ID   = '6932599524';
 async function tg(kind, msg){
   // Try /api/telegram serverless route first
@@ -2269,10 +2268,11 @@ pizza:[
 ],
 burger:[
 {id:'b1',e:'🍔',n:'Aloo Tikki Burger',d:'Classic aloo tikki, mint chutney',p:119,badge:'3 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
-{id:'b2',e:'🍔',n:'Crispy Veg Burger',d:'Crispy veggie patty, fresh slaw',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130664/Crispu_Vege-Burger_vluery.webp'},
+{id:'b6',e:'🍔',n:'Bez Burger',d:'Signature BudgetMein burger, crispy & saucy',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
+{id:'b2',e:'🍔',n:'Crispy Veg Burger',d:'Crispy veggie patty, fresh slaw',p:50,img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130664/Crispu_Vege-Burger_vluery.webp'},
 {id:'b7',e:'🍔',n:'Cheesy Burger',d:'Extra loaded cheese, rich creamy sauce',p:119,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
-{id:'b3',e:'🍔',n:'Cheese Burger',d:'Double cheese, tangy sauce',p:119,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
-{id:'b5',e:'🍔',n:'Spicy Paneer Burger',d:'Marinated paneer with spicy mayo',p:80,badge:'1 pc',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130727/Spicy_Pneet_Burger_p00t3n.jpg'},
+{id:'b4',e:'🍔',n:'Spicy Burger',d:'Extra hot spicy patty, jalapeño',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130726/Spicy_Burger_myyzm8.avif'},
+{id:'b5',e:'🍔',n:'Spicy Paneer Burger',d:'Marinated paneer with spicy mayo',p:80,badge:'sp',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130727/Spicy_Pneet_Burger_p00t3n.jpg'},
 ],
 wrap:[
 {id:'w1',e:'🌯',n:'Aloo Wrap',d:'Crispy aloo filling, fresh veggies',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130642/aallo_wrao_bvhj7y.jpg'},
