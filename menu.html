@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+<!-- SECURITY HEADERS -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.googleapis.com https://*.gstatic.com https://res.cloudinary.com https://www.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://fonts.googleapis.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://res.cloudinary.com https://*.googleapis.com https://*.gstatic.com https://www.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://recaptchaenterprise.googleapis.com wss://*.firebaseio.com; frame-src https://www.google.com;"/>
 <title>BudgetMein - Menu</title>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json"/>
@@ -27,10 +32,22 @@
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,updateDoc,deleteDoc,query,orderBy,limit,where,onSnapshot,runTransaction,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import{initializeAppCheck,ReCaptchaV3Provider}from"https://www.gstatic.com/firebasejs/10.11.0/firebase-app-check.js";
 const FB={apiKey:"AIzaSyCVPIRPTwByKE431I5QwcPEmTH9qgcitj8",authDomain:"budgetmein-62bc0.firebaseapp.com",projectId:"budgetmein-62bc0",storageBucket:"budgetmein-62bc0.firebasestorage.app",messagingSenderId:"1097719035074",appId:"1:1097719035074:web:1570114f2b10d6fbe8775b"};
 const fbApp=initializeApp(FB);
 const db=getFirestore(fbApp);
 const auth=getAuth(fbApp);
+
+// ================================================================
+// FIREBASE APP CHECK — reCAPTCHA v3
+// Blocks anyone from using your Firebase config outside your app
+// ================================================================
+try{
+  initializeAppCheck(fbApp,{
+    provider: new ReCaptchaV3Provider('6Lf_q60sAAAAAF_tE0tSUF-L3cni5Ibr90HQM_-d'),
+    isTokenAutoRefreshEnabled: true
+  });
+}catch(e){ /* silent — app still works if App Check fails to init */ }
 
 // Expose signOut so logoutUser() can call it
 window._bmSignOut = function(){ return signOut(auth); };
@@ -479,13 +496,20 @@ window.bmGetOrderFromFirestore = async function(orderId){
 
 window.bmSaveOrder=async function(orderData){
   try{
+    // SECURITY: Hard-verify Firebase auth before writing any order
+    const currentUser = auth.currentUser;
+    if(!currentUser || !currentUser.uid){
+      throw new Error('Not authenticated. Please log in again.');
+    }
+    // SECURITY: Always use the verified Firebase UID, never trust client-provided userId
+    const verifiedUid = currentUser.uid;
     var nowMs=Date.now();
     var cleanItems=(orderData.itemsFull||[]).map(function(i){
       return{name:i.n||i.name||'',quantity:i.qty||i.quantity||1,price:i.p||i.price||0};
     });
     var firestoreData={
       orderId:       orderData.id,
-      userId:        orderData.userId||window._bmUserId||'',
+      userId:        verifiedUid,
       customerName:  orderData.name||'Guest',
       phone:         orderData.phone||'',
       address:       orderData.address||'',
@@ -2391,10 +2415,14 @@ const BIRYANI_FORCED_CLOSE = false; // false = use timing above
 const OPEN_FROM_MINUTES  = FASTFOOD_OPEN_FROM;
 const OPEN_UNTIL_MINUTES = FASTFOOD_OPEN_UNTIL;
 
-// Set to false for production
-const DEV_ALWAYS_OPEN = false; // false = use real timings
-// DEBUG MODE
-const DEV_SHOW_DEBUG = false;
+// PRODUCTION FLAGS — frozen so they cannot be changed from browser DevTools
+const DEV_ALWAYS_OPEN = false;
+const DEV_SHOW_DEBUG  = false;
+// Lock these so nobody can type DEV_ALWAYS_OPEN=true in browser console to bypass shop-closed
+try{
+  Object.defineProperty(window,'DEV_ALWAYS_OPEN',{value:false,writable:false,configurable:false});
+  Object.defineProperty(window,'DEV_SHOW_DEBUG', {value:false,writable:false,configurable:false});
+}catch(e){}
 
 // CONTACT
 const SUPPORT_PHONE      = "+919625867683";
@@ -5218,6 +5246,28 @@ function openPrivacyModal(){document.getElementById('privacyModal').classList.ad
 function closePrivacyModal(){document.getElementById('privacyModal').classList.remove('on');document.body.style.overflow='';}
 function openTermsModal(){document.getElementById('termsModal').classList.add('on');document.body.style.overflow='hidden';}
 function closeTermsModal(){document.getElementById('termsModal').classList.remove('on');document.body.style.overflow='';}
+
+// ================================================================
+// SECURITY: Auto-clear PII from localStorage after 30 days inactivity
+// Protects customer data on shared/stolen devices
+// ================================================================
+(function bmSecurityGuard(){
+  try{
+    var PII_KEYS=['bm_user','bm_orders','bm_feedbacks','bm_addresses',
+                  'bm_selected_address_id','bm_default_address_id','bm_cart_addr_full'];
+    var EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+    var lastActive = parseInt(localStorage.getItem('bm_last_active')||'0', 10);
+    var now = Date.now();
+    if(lastActive && (now - lastActive) > EXPIRY_MS){
+      // Inactive for 30+ days — wipe PII, keep install/session prefs only
+      PII_KEYS.forEach(function(k){ localStorage.removeItem(k); });
+      localStorage.removeItem('bm_last_active');
+    } else {
+      // Update last active timestamp on every page load
+      localStorage.setItem('bm_last_active', String(now));
+    }
+  }catch(e){}
+})();
 
 // ---- INIT ----
 renderMenu();renderCart();
