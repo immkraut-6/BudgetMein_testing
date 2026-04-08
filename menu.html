@@ -5361,38 +5361,55 @@ window.addEventListener('beforeunload',function(){
   <div class="modal" style="max-height:90vh">
     <div class="modal-head"><h3>Privacy Policy</h3><button class="sclose" onclick="closePrivacyModal()">&#10005;</button></div>
     <div class="modal-body" style="font-size:.82rem;color:var(--tx);line-height:1.9">
-      <p style="font-size:.75rem;color:var(--mu);margin-bottom:16px">Effective Date: January 2025 &nbsp;|&nbsp; BudgetMein, Jahangir Puri, Delhi - 110033</p>
+      <p style="font-size:.75rem;color:var(--mu);margin-bottom:16px">Effective Date: April 2026 &nbsp;|&nbsp; BudgetMein, Jahangir Puri, Delhi - 110033</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">1. Information We Collect</h4>
       <ul style="margin-left:16px;margin-bottom:14px;line-height:2">
-        <li><b>Name</b></li>
-        <li><b>Phone Number</b></li>
-        <li><b>Address</b></li>
-        <li><b>Order Details</b></li>
+        <li><b>Name</b> — via Google Sign-In or manual entry</li>
+        <li><b>Phone Number</b> — when placing an order</li>
+        <li><b>Delivery Address</b> — entered manually or via GPS</li>
+        <li><b>Precise Location (GPS)</b> — only at time of ordering to assist address entry. Not tracked in background.</li>
+        <li><b>Order Details</b> — items, amount, payment method</li>
+        <li><b>Device Identifiers</b> — collected by Firebase for authentication and security</li>
       </ul>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">2. How We Use Your Information</h4>
       <ul style="margin-left:16px;margin-bottom:14px;line-height:2">
         <li>To process and deliver your orders</li>
         <li>To contact you regarding your orders</li>
-        <li>To improve our service</li>
+        <li>To improve our service and app experience</li>
+        <li>To prevent fraud and ensure security</li>
       </ul>
 
-      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">3. Data Sharing</h4>
-      <p style="margin-bottom:14px">We do <b>NOT</b> sell user data. Data is shared only with our delivery personnel for the purpose of completing your order.</p>
-
-      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">4. Data Security</h4>
-      <p style="margin-bottom:14px">Reasonable steps are taken to protect your data. However, absolute security cannot be guaranteed.</p>
-
-      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">5. Your Rights</h4>
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">3. Third-Party Services</h4>
       <ul style="margin-left:16px;margin-bottom:14px;line-height:2">
-        <li>You may request correction or deletion of your data at any time</li>
+        <li><b>Google Firebase</b> — authentication, database, app security</li>
+        <li><b>Google Sign-In</b> — account login via Google</li>
+        <li><b>Telegram</b> — internal order notifications only</li>
+        <li><b>Cloudinary</b> — image hosting for app content</li>
+        <li><b>Vercel</b> — app hosting and serverless functions</li>
       </ul>
 
-      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">6. Contact</h4>
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">4. Data Sharing</h4>
+      <p style="margin-bottom:14px">We do <b>NOT</b> sell user data. Data is shared only with our delivery personnel to complete your order, or as required by law.</p>
+
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">5. Data Retention</h4>
+      <p style="margin-bottom:14px">We retain your personal data for up to <b>2 years</b> from your last activity. Order records may be kept up to 5 years for legal compliance.</p>
+
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">6. Cookies &amp; Local Storage</h4>
+      <p style="margin-bottom:14px">We use browser localStorage to store your cart and session. No advertising or tracking cookies are used.</p>
+
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">7. Children's Privacy</h4>
+      <p style="margin-bottom:14px">This app is <b>not intended for children under 13 years of age</b>. We do not knowingly collect data from children under 13. If you believe a child under 13 has provided data, contact us immediately.</p>
+
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">8. Your Rights &amp; Data Deletion</h4>
+      <p style="margin-bottom:14px">You may request access, correction, or deletion of your data at any time. To delete your account and all data, contact us at <b>budgetmeinhelpdesk@gmail.com</b> or WhatsApp +91 96258 67683. We process requests within 30 days.</p>
+
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">9. Contact</h4>
       <p style="margin-bottom:4px">&#128205; Jahangir Puri, Delhi - 110033</p>
       <p style="margin-bottom:4px">&#9742; +91 96258 67683</p>
-      <p style="margin-bottom:16px">&#9993; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3f5d4a5b585a4b525a5651575a534f5b5a4c547f58525e5653115c5052">[email&#160;protected]</a></p>
+      <p style="margin-bottom:8px">&#9993; budgetmeinhelpdesk@gmail.com</p>
+      <p style="margin-bottom:16px"><a href="/privacy.html" target="_blank" style="color:var(--p)">View Full Privacy Policy &#8599;</a></p>
 
       <button class="confirm-btn" onclick="closePrivacyModal()">I Understand</button>
     </div>
@@ -5404,16 +5421,16 @@ window.addEventListener('beforeunload',function(){
   <div class="modal" style="max-height:90vh">
     <div class="modal-head"><h3>Terms &amp; Conditions</h3><button class="sclose" onclick="closeTermsModal()">&#10005;</button></div>
     <div class="modal-body" style="font-size:.82rem;color:var(--tx);line-height:1.9">
-      <p style="font-size:.75rem;color:var(--mu);margin-bottom:16px">Effective Date: January 2025 &nbsp;|&nbsp; BudgetMein, Jahangir Puri, Delhi - 110033</p>
+      <p style="font-size:.75rem;color:var(--mu);margin-bottom:16px">Effective Date: April 2026 &nbsp;|&nbsp; BudgetMein, Jahangir Puri, Delhi - 110033</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">1. Introduction</h4>
       <p style="margin-bottom:14px">Welcome to BudgetMein. By using this app, you agree to these Terms &amp; Conditions.</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">2. Services</h4>
       <ul style="margin-left:16px;margin-bottom:14px;line-height:2">
-        <li>BudgetMein allows users to order food items such as pizza, burgers, sandwiches, and more</li>
+        <li>BudgetMein allows users to order fresh vegetarian food items</li>
         <li>Service is available only in: <b>Jahangir Puri, Delhi - 110033</b></li>
-        <li>Delivery charge: <b>&#8377;25 fixed</b> per order</li>
+        <li>Delivery fee: <b>&#8377;30</b> for orders below &#8377;149 | <b>&#8377;25</b> for orders &#8377;149 and above</li>
         <li>Estimated delivery time: <b>~30 minutes</b> (not guaranteed)</li>
       </ul>
 
@@ -5427,7 +5444,7 @@ window.addEventListener('beforeunload',function(){
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">4. Pricing</h4>
       <ul style="margin-left:16px;margin-bottom:14px;line-height:2">
         <li>All prices shown are final item prices</li>
-        <li>Delivery fee: <b>&#8377;25 fixed</b></li>
+        <li>Delivery fee: <b>&#8377;30</b> for orders below &#8377;149 | <b>&#8377;25</b> for orders &#8377;149 and above</li>
         <li>Platform fee: <b>&#8377;5</b></li>
         <li>No hidden charges</li>
         <li>Prices may change without prior notice</li>
@@ -5489,8 +5506,11 @@ window.addEventListener('beforeunload',function(){
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">12. Contact &amp; Support</h4>
       <p style="margin-bottom:4px">&#128205; Jahangir Puri, Delhi - 110033</p>
       <p style="margin-bottom:4px">&#9742; +91 96258 67683 (Call / WhatsApp)</p>
-      <p style="margin-bottom:4px">&#9993; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bcdec9d8dbd9c8d1d9d5d2d4d9d0ccd8d9cfd7fcdbd1ddd5d092dfd3d1">[email&#160;protected]</a></p>
+      <p style="margin-bottom:4px">&#9993; budgetmeinhelpdesk@gmail.com</p>
       <p style="margin-bottom:16px">Available: Monday to Sunday, 3:00 PM - 9:00 PM</p>
+
+      <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">13. Governing Law</h4>
+      <p style="margin-bottom:14px">These Terms are governed by the laws of <b>India</b>. Any disputes arising from use of BudgetMein shall be subject to the jurisdiction of the courts of <b>Delhi, India</b>.</p>
 
       <div style="background:#FFF6F3;border-radius:10px;padding:12px;font-size:.76rem;color:var(--mu);margin-bottom:16px">
         By using BudgetMein and placing orders, you agree to all the above Terms &amp; Conditions. BudgetMein reserves the right to update these terms at any time.
