@@ -519,8 +519,9 @@ window.bmOrderTG=async function(order,items,sub,del,plat){
   const u=JSON.parse(localStorage.getItem('bm_user')||'{}');
   const t=new Date().toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'});
   var hasCake=items.some(function(i){return i.isCake;});
-  var hasFf=items.some(function(i){return !i.isCake;});
-  var shopLabel=hasCake&&!hasFf?'CAKE ORDER':hasFf&&!hasCake?'FAST FOOD ORDER':'MIXED ORDER';
+  var hasBiryani=items.some(function(i){return i.shop==='biryani';});
+  var hasFf=items.some(function(i){return !i.isCake && i.shop!=='biryani';});
+  var shopLabel=hasBiryani&&!hasCake&&!hasFf?'BIRYANI ORDER':hasCake&&!hasFf&&!hasBiryani?'CAKE ORDER':hasFf&&!hasCake&&!hasBiryani?'FAST FOOD ORDER':'MIXED ORDER';
   const lines=items.map(function(i,idx){
     return(idx+1)+'. '+(i.n||i.name)+(i.meta?' ('+i.meta+')':'')+' x'+(i.qty||i.quantity)+'  -  <b>'+bmMoney((i.p||i.price)*(i.qty||i.quantity))+'</b>';
   }).join('\n');
@@ -718,7 +719,8 @@ body.page-leaving{opacity:0;transition:opacity .2s ease}
 .bc{background:linear-gradient(90deg,#96281B,#C0392B);color:#fff}
 #ffCard:hover{border-color:var(--p)!important;transform:translateY(-3px);box-shadow:0 8px 28px rgba(255,69,0,.2)!important}
 #cakeCard:hover{border-color:#7C3AED!important;transform:translateY(-3px);box-shadow:0 8px 28px rgba(124,58,237,.2)!important}
-#ffCard:active,#cakeCard:active{transform:scale(.97)!important}
+#ffCard:active,#cakeCard:active,#biryaniCard:active{transform:scale(.97)!important}
+#biryaniCard:hover{border-color:#16a34a!important;transform:translateY(-3px);box-shadow:0 8px 28px rgba(22,163,74,.2)!important}
 #mainNav{position:sticky;top:36px;z-index:1150;padding:14px 5% 12px;background:linear-gradient(180deg,rgba(15,17,31,.98),rgba(26,26,46,.96));backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 18px 40px rgba(8,10,24,.18)}
 #mainNav>div:first-child,#shopSwitcherBar>div,#smartCategoryBar,.promo-head,.promo-carousel,.promo-dots{max-width:1180px;margin-left:auto;margin-right:auto;width:100%}
 .nav-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
@@ -761,8 +763,9 @@ body.page-leaving{opacity:0;transition:opacity .2s ease}
 #shopSwitcherBar>div{display:flex!important;gap:10px!important;height:auto!important;overflow-x:auto;scrollbar-width:none}
 #shopSwitcherBar>div::-webkit-scrollbar{display:none}
 #shopSwitcherBar>div>button:first-child,#shopSwitcherBar>div>div{display:none!important}
-#shopSwitcherBar>div>#ssBtnFf,#shopSwitcherBar>div>#ssBtnCake{border:none!important;background:rgba(255,255,255,.06)!important;color:rgba(255,255,255,.72)!important;padding:10px 15px!important;border-radius:16px!important;font-size:.78rem!important;font-weight:700!important}
-#shopSwitcherBar>div>#ssBtnFf.active,#shopSwitcherBar>div>#ssBtnCake.active{background:linear-gradient(135deg,var(--p),var(--pd))!important;color:#fff!important;box-shadow:0 10px 22px rgba(255,69,0,.24)!important}
+#shopSwitcherBar>div>#ssBtnFf,#shopSwitcherBar>div>#ssBtnCake,#shopSwitcherBar>div>#ssBtnBiryani{border:none!important;background:rgba(255,255,255,.06)!important;color:rgba(255,255,255,.72)!important;padding:10px 15px!important;border-radius:16px!important;font-size:.78rem!important;font-weight:700!important}
+#shopSwitcherBar>div>#ssBtnFf.active,#shopSwitcherBar>div>#ssBtnCake.active,#shopSwitcherBar>div>#ssBtnBiryani.active{background:linear-gradient(135deg,var(--p),var(--pd))!important;color:#fff!important;box-shadow:0 10px 22px rgba(255,69,0,.24)!important}
+#shopSwitcherBar>div>#ssBtnBiryani.active{background:linear-gradient(135deg,#16a34a,#15803d)!important;box-shadow:0 10px 22px rgba(22,163,74,.24)!important}
 .smart-cats{display:none;gap:8px;overflow-x:auto;scrollbar-width:none;padding-top:10px}
 .smart-cats::-webkit-scrollbar{display:none}
 .smart-cats.on{display:flex}
@@ -1288,81 +1291,171 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
       <div style="width:1px;height:16px;background:rgba(255,255,255,.15);flex-shrink:0"></div>
       <button id="ssBtnFf" onclick="enterShop('fastfood')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:50px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">Fast Food</button>
       <button id="ssBtnCake" onclick="enterShop('cake')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:50px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">Bakery</button>
+      <button id="ssBtnBiryani" onclick="enterShop('biryani')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:50px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;flex-shrink:0;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)">Biryani</button>
     </div>
   </div>
   <div id="smartCategoryBar" class="smart-cats"></div>
 </nav>
-<section class="promo-shell" aria-label="Offers">
-  <div class="promo-head">
-    <div>
-      <div class="promo-overline">Highlights</div>
-      <h2>Fast delivery, smart picks, and celebration-ready cakes.</h2>
+<!-- ===== HERO CAROUSEL ===== -->
+<style>
+.hc-shell{position:relative;overflow:hidden;background:#0f1120;margin:0}
+.hc-track{display:flex;transition:transform .55s cubic-bezier(.22,.61,.36,1);will-change:transform}
+.hc-slide{min-width:100%;position:relative;height:clamp(220px,56vw,340px);overflow:hidden;flex-shrink:0}
+.hc-slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 6s ease;transform:scale(1.06)}
+.hc-slide.active .hc-slide-bg{transform:scale(1)}
+.hc-overlay{position:absolute;inset:0}
+.hc-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 20px 22px}
+.hc-kicker{font-size:.65rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.hc-kicker::before{content:'';width:18px;height:2px;background:var(--p);border-radius:2px;display:inline-block}
+.hc-title{font-family:var(--fl);font-size:clamp(1.35rem,5vw,1.9rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.hc-sub{font-size:.78rem;color:rgba(255,255,255,.82);line-height:1.5;margin-bottom:12px;max-width:310px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.hc-cta{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:50px;padding:9px 18px;font-family:var(--fb);font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,69,0,.35);transition:transform .18s ease,box-shadow .18s ease}
+.hc-cta:hover{transform:scale(1.04);box-shadow:0 8px 24px rgba(255,69,0,.45)}
+.hc-badge{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.22);border-radius:50px;padding:5px 14px;font-size:.7rem;font-weight:700;color:#fff;letter-spacing:.04em}
+/* dots */
+.hc-dots{position:absolute;bottom:14px;right:18px;display:flex;gap:6px;z-index:10}
+.hc-dot{width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,.35);border:none;padding:0;cursor:pointer;transition:width .3s ease,background .3s ease}
+.hc-dot.active{width:20px;background:#fff}
+/* nav arrows */
+.hc-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;font-size:1rem;transition:background .2s;flex-shrink:0}
+.hc-arr:hover{background:rgba(255,255,255,.28)}
+.hc-arr-l{left:12px}
+.hc-arr-r{right:12px}
+/* progress bar */
+.hc-progress{position:absolute;bottom:0;left:0;width:0%;height:3px;background:var(--p);z-index:10;border-radius:0 3px 3px 0}
+.hc-progress.running{animation:hcprog 3s linear forwards}
+@keyframes hcprog{from{width:0%}to{width:100%}}
+</style>
+
+<section class="hc-shell" aria-label="Highlights">
+  <div class="hc-track" id="hcTrack">
+
+    <!-- SLIDE 1: Free First Delivery -->
+    <div class="hc-slide active" id="hcSlide0">
+      <div class="hc-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80&fm=jpg');background-position:center 40%"></div>
+      <div class="hc-overlay" style="background:linear-gradient(135deg,rgba(10,12,30,.82) 0%,rgba(61,18,0,.55) 60%,rgba(0,0,0,.2) 100%)"></div>
+      <div class="hc-content">
+        <div class="hc-kicker">Welcome Gift</div>
+        <div class="hc-title">Pehla Order,<br/>Delivery Free! 🎉</div>
+        <div class="hc-sub">Jahangir Puri ke apne app par pehli baar order karo aur delivery charge bilkul zero. Sirf aapke liye.</div>
+        <button class="hc-cta" onclick="showShopPicker();window.scrollTo({top:0,behavior:'smooth'})">Order Abhi &#x2192;</button>
+      </div>
+      <div class="hc-badge">FREE Delivery</div>
     </div>
-  </div>
-  <div class="promo-carousel" id="promoCarousel">
-    <div class="promo-track" id="promoTrack">
-      <article class="promo-slide">
-        <div class="promo-content">
-          <div class="promo-kicker">Budget Drop</div>
-          <div class="promo-title">Free delivery on your first order</div>
-          <div class="promo-copy">Start with your first order and unlock a cleaner checkout with zero delivery charge.</div>
-          <div class="promo-pill">New-customer welcome benefit</div>
-        </div>
-        <div class="promo-side"><div class="promo-side-label">Welcome Perk</div><div class="promo-stat">FREE</div><div class="promo-note">Delivery on the very first order.</div></div>
-      </article>
-      <article class="promo-slide">
-        <div class="promo-content">
-          <div class="promo-kicker">Fast Food Focus</div>
-          <div class="promo-title">Pizza, burgers, fries, and wraps in one smooth flow</div>
-          <div class="promo-copy">Jump straight into the fast-food menu, filter by category, and add to cart without hunting around.</div>
-          <div class="promo-pill">Best for evening cravings</div>
-        </div>
-        <div class="promo-side"><div class="promo-side-label">Shop Hours</div><div class="promo-stat">3-9</div><div class="promo-note">Fast food is live from 3:00 PM to 9:00 PM.</div></div>
-      </article>
-      <article class="promo-slide">
-        <div class="promo-content">
-          <div class="promo-kicker">Bakery Corner</div>
-          <div class="promo-title">Celebration cakes with photo-cake and flavour options</div>
-          <div class="promo-copy">Move from discovery to order quickly with one bakery view for kids, chocolate, fruit, and photo cakes.</div>
-          <div class="promo-pill">Birthday-ready favourites</div>
-        </div>
-        <div class="promo-side"><div class="promo-side-label">Bakery Window</div><div class="promo-stat">10-9</div><div class="promo-note">Bakery orders run from 10:00 AM to 9:00 PM.</div></div>
-      </article>
-      <article class="promo-slide">
-        <div class="promo-content">
-          <div class="promo-kicker">Checkout Promise</div>
-          <div class="promo-title">Cash on delivery with a cleaner order journey</div>
-          <div class="promo-copy">Track totals clearly, keep the cart close at hand, and place orders from a focused app-like flow.</div>
-          <div class="promo-pill">Made for quick repeat orders</div>
-        </div>
-        <div class="promo-side"><div class="promo-side-label">Service Fee</div><div class="promo-stat">&#8377;5</div><div class="promo-note">Simple pricing with a flat service fee.</div></div>
-      </article>
+
+    <!-- SLIDE 2: Hot Fast Food Evening -->
+    <div class="hc-slide" id="hcSlide1">
+      <div class="hc-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80&fm=jpg');background-position:center 55%"></div>
+      <div class="hc-overlay" style="background:linear-gradient(160deg,rgba(10,12,30,.78) 0%,rgba(255,69,0,.28) 70%,rgba(0,0,0,.15) 100%)"></div>
+      <div class="hc-content">
+        <div class="hc-kicker">Fry Day Shop</div>
+        <div class="hc-title">Shaam Ki Bhookh?<br/>Pizza, Burger, Wrap! 🍕</div>
+        <div class="hc-sub">Roz shaam 3 baje se 9 baje tak — garam khana seedha aapke darwaaze tak. Fries bhi, wraps bhi!</div>
+        <button class="hc-cta" onclick="enterShop('fastfood')">Menu Dekho &#x2192;</button>
+      </div>
+      <div class="hc-badge">3 PM – 9 PM</div>
     </div>
+
+    <!-- SLIDE 3: Fresh Veg Biryani -->
+    <div class="hc-slide" id="hcSlide2">
+      <div class="hc-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80&fm=jpg');background-position:center 45%"></div>
+      <div class="hc-overlay" style="background:linear-gradient(150deg,rgba(5,46,22,.85) 0%,rgba(22,163,74,.22) 60%,rgba(0,0,0,.2) 100%)"></div>
+      <div class="hc-content">
+        <div class="hc-kicker">Shri Radhe Radhe</div>
+        <div class="hc-title">Ghar Jaisi Biryani,<br/>Sirf ₹39 Se! 🍚</div>
+        <div class="hc-sub">Subah 9 baje se dopahar 2 baje tak — taaze masalo mein bani veg biryani, seedha aapke ghar tak. 100% pure veg.</div>
+        <button class="hc-cta" style="background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 6px 18px rgba(22,163,74,.4)" onclick="enterShop('biryani')">Biryani Order Karo &#x2192;</button>
+      </div>
+      <div class="hc-badge" style="background:rgba(22,163,74,.25);border-color:rgba(22,163,74,.4)">🟢 Pure Veg</div>
+    </div>
+
   </div>
-  <div class="promo-dots" id="promoDots">
-    <button type="button" class="active" aria-label="Promo 1"></button>
-    <button type="button" aria-label="Promo 2"></button>
-    <button type="button" aria-label="Promo 3"></button>
-    <button type="button" aria-label="Promo 4"></button>
+
+  <!-- Arrows -->
+  <button class="hc-arr hc-arr-l" id="hcArrL" onclick="hcGo(-1)" aria-label="Previous">&#8249;</button>
+  <button class="hc-arr hc-arr-r" id="hcArrR" onclick="hcGo(1)" aria-label="Next">&#8250;</button>
+
+  <!-- Dots -->
+  <div class="hc-dots" id="hcDots">
+    <button class="hc-dot active" onclick="hcGoto(0)"></button>
+    <button class="hc-dot" onclick="hcGoto(1)"></button>
+    <button class="hc-dot" onclick="hcGoto(2)"></button>
   </div>
+
+  <!-- Progress bar -->
+  <div class="hc-progress running" id="hcProgress"></div>
 </section>
+
+<script>
+;(function(){
+  var track=document.getElementById('hcTrack');
+  var dots=[].slice.call(document.querySelectorAll('#hcDots .hc-dot'));
+  var slides=[].slice.call(document.querySelectorAll('.hc-slide'));
+  var progress=document.getElementById('hcProgress');
+  var total=slides.length;
+  var cur=0;
+  var timer=null;
+
+  function paint(n){
+    cur=(n+total)%total;
+    track.style.transform='translateX(-'+(cur*100)+'%)';
+    dots.forEach(function(d,i){d.classList.toggle('active',i===cur);});
+    slides.forEach(function(s,i){s.classList.toggle('active',i===cur);});
+    // restart progress bar
+    if(progress){
+      progress.classList.remove('running');
+      void progress.offsetWidth; // reflow
+      progress.classList.add('running');
+    }
+  }
+
+  function startAuto(){
+    clearInterval(timer);
+    timer=setInterval(function(){paint(cur+1);},3000);
+  }
+
+  window.hcGo=function(d){paint(cur+d);startAuto();};
+  window.hcGoto=function(n){paint(n);startAuto();};
+
+  // Pause on hover
+  var shell=document.querySelector('.hc-shell');
+  if(shell){
+    shell.addEventListener('mouseenter',function(){clearInterval(timer);});
+    shell.addEventListener('mouseleave',startAuto);
+  }
+
+  // Touch swipe
+  var tx=0;
+  if(track){
+    track.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+    track.addEventListener('touchend',function(e){
+      var dx=e.changedTouches[0].clientX-tx;
+      if(Math.abs(dx)>40){paint(cur+(dx<0?1:-1));startAuto();}
+    },{passive:true});
+  }
+
+  startAuto();
+})();
+</script>
 <!-- SHOP PICKER -->
 <div id="shopPicker" style="display:none;background:var(--bg)">
   <!-- Hero welcome banner -->
-  <div style="background:linear-gradient(135deg,#1A1A2E 0%,#2C1A40 55%,#3D1200 100%);padding:32px 5% 28px;text-align:center;position:relative;overflow:hidden">
+  <div style="background:linear-gradient(135deg,#1A1A2E 0%,#2C1A40 55%,#3D1200 100%);padding:28px 5% 24px;text-align:center;position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(255,69,0,.18),transparent 65%)"></div>
+    <div style="position:absolute;top:-40px;left:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,69,0,.06);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,215,0,.04);pointer-events:none"></div>
     <div style="position:relative;z-index:1">
-      <div style="font-size:1rem;margin-bottom:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.58);font-weight:700">Two Stores. One Smooth Ordering Flow.</div>
-      <h2 style="font-family:var(--fl);font-size:1.7rem;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.2">
-        Ghar Baitha Order Kar,<br/><span style="color:#FFD700">Budget Mein Kha!</span>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.25);border-radius:50px;padding:4px 14px;font-size:.65rem;font-weight:700;color:#FFD700;letter-spacing:.1em;margin-bottom:12px">&#x1F4CD; JAHANGIR PURI, DELHI</div>
+      <h2 style="font-family:var(--fl);font-size:clamp(1.4rem,5vw,1.9rem);font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2">
+        Ghar Baitha Order Kar,<br/><span style="color:#FFD700">Budget Mein Kha! &#x1F37D;&#xFE0F;</span>
       </h2>
-      <p style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:16px;line-height:1.6">
-        Fresh food and custom cakes delivered to your door in Jahangir Puri, Delhi.
+      <p style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:16px;line-height:1.7;max-width:360px;margin-left:auto;margin-right:auto">
+        Fry Day ka pizza ho, Shri Ram Ji ka cake ho, ya Shri Radhe Radhe ki biryani — sab kuch ek app mein, Jahangir Puri ke liye.
       </p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
-        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:600">Fast Delivery</span>
-        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:600">Cash on Delivery</span>
-        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:600">Free First Delivery</span>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center">
+        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:5px 13px;border-radius:50px;font-size:.7rem;font-weight:600">&#x26A1; Fast Delivery</span>
+        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:5px 13px;border-radius:50px;font-size:.7rem;font-weight:600">&#x1F4B8; Cash on Delivery</span>
+        <span style="background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);color:#FFD700;padding:5px 13px;border-radius:50px;font-size:.7rem;font-weight:600">&#x1F381; Free First Delivery</span>
       </div>
     </div>
   </div>
@@ -1394,6 +1487,37 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
         <div id="cakeShopStatus" style="display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700;margin-bottom:7px"></div>
         <div style="font-size:.67rem;color:var(--mu);line-height:1.6">Custom Cakes &#x2022; Photo Cakes<br/>Kids &#x2022; Tiered &#x2022; Wedding</div>
         <div style="font-size:.63rem;color:var(--mu);margin-top:5px">10:00 AM &#x2013; 9:00 PM</div>
+      </div>
+    </div>
+    <!-- BIRYANI SHOP CARD - full width below -->
+  </div>
+  <div style="max-width:480px;margin:14px auto 0">
+    <!-- SHRI RADHE RADHE BIRYANI CARD -->
+    <div id="biryaniCard" onclick="enterShop('biryani')" style="cursor:pointer;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(22,163,74,.14);border:2px solid #BBF7D0;transition:all .25s">
+      <div style="background:linear-gradient(135deg,#052E16,#064E3B,#16a34a);padding:18px 16px 14px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
+        <div style="display:flex;align-items:center;gap:14px;position:relative;z-index:1">
+          <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.2)">&#x1F372;</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:var(--fl);font-size:1.05rem;font-weight:800;color:#fff">Shri Radhe Radhe</div>
+            <div style="font-size:.65rem;color:rgba(255,255,255,.65);margin-top:2px">K Block, Jahangir Puri</div>
+            <div style="display:flex;gap:5px;margin-top:5px">
+              <span style="background:rgba(134,239,172,.2);border:1px solid rgba(134,239,172,.4);color:#86efac;padding:2px 8px;border-radius:50px;font-size:.62rem;font-weight:700">&#x1F7E2; Pure Veg</span>
+              <span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:2px 8px;border-radius:50px;font-size:.62rem;font-weight:700">&#x2728; NEW</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:11px 14px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,#F0FFF4,#fff)">
+        <div>
+          <div id="biryaniShopStatus" style="display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700;margin-bottom:5px"></div>
+          <div style="font-size:.67rem;color:var(--mu);line-height:1.7">250g &nbsp;&#x2022;&nbsp; 400g &nbsp;&#x2022;&nbsp; 500g</div>
+          <div style="font-size:.63rem;color:var(--mu);margin-top:2px">&#x23F0; 9:00 AM – 2:00 PM &nbsp;&#x22C5;&nbsp; &#x1F6F5; 25 min</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:var(--fl);font-size:1.1rem;font-weight:800;color:#16a34a">From &#8377;39</div>
+          <div style="font-size:.62rem;color:#16a34a;font-weight:600;margin-top:1px">Dum-Style Biryani</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1465,6 +1589,46 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
       <button class="cake-fpill" onclick="setCakeFilter('tiered',this)">Tiered</button>
     </div>
     <div class="mgrid" id="cakeGrid"></div>
+  </div>
+</div>
+
+<!-- BIRYANI SHOP VIEW -->
+<div id="biryaniShopView" style="display:none">
+  <section class="hero" style="background:linear-gradient(135deg,#052E16 0%,#064E3B 45%,#14532D 100%);position:relative;overflow:hidden">
+    <!-- decorative bg circles -->
+    <div style="position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(22,163,74,.18),transparent 70%);top:-60px;right:-60px;pointer-events:none"></div>
+    <div style="position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.05),transparent 70%);bottom:-40px;left:20px;pointer-events:none"></div>
+    <div class="ht" style="position:relative;z-index:1">
+      <div style="margin-bottom:10px">
+        <button onclick="goBackToShopPicker()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:50px;padding:5px 14px;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--fb)">&#x2190; All Shops</button>
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(22,163,74,.25);border:1px solid rgba(22,163,74,.5);border-radius:50px;padding:4px 12px;font-size:.65rem;font-weight:700;color:#86efac;letter-spacing:.08em;margin-bottom:10px">&#x1F7E2; 100% PURE VEG</div>
+      <h1 style="font-size:clamp(1.5rem,5vw,2.2rem)">Shri Radhe Radhe &#x1F372;</h1>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:4px">&#x1F4CD; K Block, Jahangir Puri, Delhi 110033</p>
+      <p style="margin-bottom:14px">Taaza veg biryani, ghar tak — roz subah ki taazgi ke saath.</p>
+      <div class="hbadges">
+        <span class="hb" style="background:rgba(22,163,74,.25);border-color:rgba(22,163,74,.5);color:#86efac">&#x23F0; 25 min delivery</span>
+        <span class="hb">&#x1F4B0; From &#8377;39</span>
+        <span class="hb">&#x1F372; Dum-Style</span>
+      </div>
+    </div>
+    <div class="hemoji" style="font-size:clamp(2.5rem,7vw,4.5rem)">&#x1F372;<br/><span style="font-size:.6em">&#x1F33F; &#x2728;</span><br/><span style="font-size:.5em;display:block;margin-top:4px;background:rgba(22,163,74,.3);border-radius:50px;padding:3px 10px;color:#86efac;font-family:var(--fb);font-weight:700;font-size:.55rem;letter-spacing:.08em">9AM–2PM</span></div>
+  </section>
+  <!-- Closed notice - polished -->
+  <div id="biryaniClosedNotice" style="display:none;margin:12px 5% 0;background:linear-gradient(135deg,#FFF3F3,#FFF8F8);border:1.5px solid #FFCDD2;border-radius:14px;padding:12px 16px;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 4px 14px rgba(192,57,43,.08)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:#FFF0F0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">&#x23F0;</div>
+      <div>
+        <div style="font-family:var(--fl);font-size:.9rem;font-weight:800;color:var(--er)">Abhi Band Hai</div>
+        <div style="font-size:.72rem;color:#7B3B3B;margin-top:1px">Kal subah 9:00 AM par khulega &nbsp;·&nbsp; Mon–Sun</div>
+      </div>
+    </div>
+    <button onclick="enterShop('fastfood')" style="padding:7px 14px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:50px;font-family:var(--fb);font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(255,69,0,.25)">Fast Food Dekho</button>
+  </div>
+  <!-- Biryani Products Section -->
+  <div class="section" id="biryaniSection" style="padding-top:20px">
+    <h2 class="stitle" style="--p:#16a34a;color:#166534">&#x1F372; Veg Biryani</h2>
+    <div class="mgrid" id="biryaniGrid"></div>
   </div>
 </div>
 
@@ -1829,7 +1993,7 @@ document.getElementById('srch').addEventListener('input',function(){
 
 <footer>
   <div class="ftop">
-    <div class="fbrand"><div class="fn">Budget<span>Mein</span></div><p>Fast food and celebration cakes, delivered across Jahangir Puri with a cleaner app-style experience.</p></div>
+    <div class="fbrand"><div class="fn">Budget<span>Mein</span></div><p>Fast food, celebration cakes &amp; fresh veg biryani, delivered across Jahangir Puri with a cleaner app-style experience.</p></div>
     <div class="fcol"><h4>Support</h4><p>Call: +91 96258 67683</p><a href="https://wa.me/919625867683" target="_blank">WhatsApp Support</a><p>Hours: Mon-Sun, 3:00 PM - 9:00 PM</p><p>Area: Jahangir Puri, Delhi 110033</p></div>
     <div class="fcol"><h4>Policies</h4><a href="#" onclick="event.preventDefault();openTermsModal()">Terms &amp; Conditions</a><a href="#" onclick="event.preventDefault();openPrivacyModal()">Privacy Policy</a></div>
   </div>
@@ -2190,9 +2354,14 @@ const FASTFOOD_OPEN_UNTIL   = 1260;  // 9:00 PM  (21 ï¿½ 60 = 1260 minutes)
 const FASTFOOD_FORCED_CLOSE = false; // false = use timing above (set true to force close)
 
 // -- CAKE SHOP: Shri Ram Ji Bakery --
-const CAKE_OPEN_FROM    = 600;    // 10:00 AM (10 ï¿½ 60 = 600 minutes)
-const CAKE_OPEN_UNTIL   = 1260;   // 9:00 PM  (21 ï¿½ 60 = 1260 minutes)
+const CAKE_OPEN_FROM    = 600;    // 10:00 AM (10 × 60 = 600 minutes)
+const CAKE_OPEN_UNTIL   = 1260;   // 9:00 PM  (21 × 60 = 1260 minutes)
 const CAKE_FORCED_CLOSE = false;  // false = use timing above
+
+// -- BIRYANI SHOP: Shri Radhe Radhe --
+const BIRYANI_OPEN_FROM    = 540;   // 9:00 AM  (9 × 60 = 540 minutes)
+const BIRYANI_OPEN_UNTIL   = 840;   // 2:00 PM  (14 × 60 = 840 minutes)
+const BIRYANI_FORCED_CLOSE = false; // false = use timing above
 
 // Legacy aliases (do not remove)
 const OPEN_FROM_MINUTES  = FASTFOOD_OPEN_FROM;
@@ -2259,7 +2428,7 @@ fries:[
 {id:'f3',e:'??',n:'Cheesy Fries',d:'Fries loaded with cheese sauce',p:80,badge:'bs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130663/cheese-fries_i6fqiq.jpg'},
 ],
 sandwich:[
-{id:'s1',e:'🥪',n:'Sandwich Lite',d:'Simple &amp; fresh grilled sandwich',ps:{'4pc':99},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1775572050/istockphoto-1221237754-612x612_h1qudx.jpg'},
+{id:'s1',e:'🥪',n:'Sandwich Lite',d:'Simple &amp; fresh grilled sandwich',ps:{'4pc':99},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130719/Sandwich_lite_pys5qk.jpg'},
 {id:'s2',e:'🥪',n:'Grill Sandwich',d:'Grilled with veggies &amp; cheese',ps:{'4pc':139},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130719/Sandwich_lite_pys5qk.jpg'},
 {id:'s3',e:'🥪',n:'Paneer Sandwich',d:'Marinated paneer, spiced filling',ps:{'4pc':159},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130714/Paneer_sandwich_sz369u.jpg'},
 {id:'s4',e:'🥪',n:'Mozzarella Sandwich',d:'Melty mozzarella, herb spread',ps:{'4pc':159},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130713/Mozzorella_Sandwich_bgxwa1.jpg'},
@@ -2301,7 +2470,68 @@ drinks:[]
 };
 const LABS={pizza:'Pizza',burger:'Burgers',wrap:'Wraps',fries:'Fries',sandwich:'Sandwiches',drinks:'Cold Drinks'};
 const BDGMAP={bs:'Bestseller',sp:'Spicy',ml:'Most Loved'};
-let isOpen=false,isCakeOpen=false,cart={};
+
+// ---- BIRYANI DATA ----
+const BIRYANI_IMG = 'https://res.cloudinary.com/dklefbj2a/image/upload/v1775571413/WhatsApp_Image_2026-04-07_at_7.46.13_PM_zcglo1.jpg';
+const BIRYANI_MENU = [
+  {id:'br1', n:'Veg Biryani', d:'Aromatic basmati rice with fresh vegetables & whole spices', sizes:{'250g':39,'400g':49,'500g':69}, img:BIRYANI_IMG},
+];
+
+function renderBiryaniGrid(){
+  var grid=document.getElementById('biryaniGrid');
+  if(!grid) return;
+  var enabled=isBiryaniOpen||DEV_ALWAYS_OPEN;
+  grid.innerHTML=BIRYANI_MENU.map(function(item){
+    var sizeHtml=Object.keys(item.sizes).map(function(sz){
+      var price=item.sizes[sz];
+      var key=item.id+'-'+sz;
+      var qty=cart[key]?cart[key].qty:0;
+      return '<div style="background:linear-gradient(135deg,#F0FFF4,#DCFCE7);border:1.5px solid #BBF7D0;border-radius:14px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;transition:box-shadow .2s">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+          +'<div style="width:38px;height:38px;border-radius:10px;background:rgba(22,163,74,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">&#x1F372;</div>'
+          +'<div>'
+            +'<div style="font-size:.84rem;font-weight:800;color:#166534">'+sz+'</div>'
+            +'<div style="font-family:var(--fl);font-size:1rem;font-weight:800;color:#16a34a">&#8377;'+price+'</div>'
+            +'<div style="font-size:.62rem;color:#6b7280;margin-top:1px">&#x1F6F5; ~25 min &nbsp;&#x2022;&nbsp; Hot Delivery</div>'
+          +'</div>'
+        +'</div>'
+        +(qty>0
+          ?'<div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:50px;padding:4px 10px;box-shadow:0 2px 8px rgba(22,163,74,.15)">'
+            +'<button onclick="biryaniQtyChange(\''+key+'\',\''+item.n+'\','+price+',\''+sz+'\',\''+item.img+'\',-1)" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(22,163,74,.3)">&#x2212;</button>'
+            +'<span style="font-size:.95rem;font-weight:800;min-width:20px;text-align:center;color:#166534" id="bqty-'+key+'">'+qty+'</span>'
+            +'<button onclick="biryaniQtyChange(\''+key+'\',\''+item.n+'\','+price+',\''+sz+'\',\''+item.img+'\',1)" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(22,163,74,.3)">+</button>'
+          +'</div>'
+          :'<button class="addbtn" style="background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 5px 14px rgba(22,163,74,.32);font-size:.78rem;padding:8px 16px" onclick="biryaniQtyChange(\''+key+'\',\''+item.n+'\','+price+',\''+sz+'\',\''+item.img+'\',1)" '+(enabled?'':' disabled')+'>'+(enabled?'+ Add':'Closed')+'</button>'
+        )
+        +'</div>';
+    }).join('');
+    return '<div class="mcard" style="border:1.5px solid #BBF7D0;box-shadow:0 6px 24px rgba(22,163,74,.1)">'
+      +'<div class="cewrap" style="background:linear-gradient(135deg,#F0FFF4,#DCFCE7);height:180px;position:relative">'
+        +'<img src="'+item.img+'" alt="'+item.n+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
+        +'<div style="position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border:1px solid #BBF7D0;border-radius:50px;padding:3px 10px;font-size:.64rem;font-weight:700;color:#166534">&#x1F7E2; Pure Veg</div>'
+        +'<div style="position:absolute;top:10px;right:10px;background:rgba(22,163,74,.9);border-radius:50px;padding:3px 10px;font-size:.64rem;font-weight:700;color:#fff">From &#8377;'+Object.values(item.sizes)[0]+'</div>'
+      +'</div>'
+      +'<div style="padding:14px 14px 16px">'
+        +'<div style="font-family:var(--fl);font-size:1.05rem;font-weight:800;color:#166534;margin-bottom:4px">'+item.n+'</div>'
+        +'<div style="font-size:.74rem;color:var(--mu);margin-bottom:6px;line-height:1.5">'+item.d+'</div>'
+        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'
+          +'<span style="font-size:.64rem;font-weight:700;color:#166534;background:#F0FFF4;padding:2px 9px;border-radius:50px;border:1px solid #BBF7D0">&#x1F33F; Veg Only</span>'
+          +'<span style="font-size:.64rem;font-weight:700;color:#166534;background:#F0FFF4;padding:2px 9px;border-radius:50px;border:1px solid #BBF7D0">&#x1F372; Dum Style</span>'
+        +'</div>'
+        +sizeHtml
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function biryaniQtyChange(key, name, price, size, img, delta){
+  if(!cart[key]) cart[key]={id:key, n:name+' ('+size+')', p:price, qty:0, img:img, shop:'biryani'};
+  cart[key].qty = Math.max(0, (cart[key].qty||0)+delta);
+  if(cart[key].qty===0) delete cart[key];
+  renderBiryaniGrid();
+  renderCart();
+}
+let isOpen=false,isCakeOpen=false,isBiryaniOpen=false,cart={};
 var activeShop=null;
 window._shopSwitchToken = 0;
 
@@ -2323,6 +2553,8 @@ function checkStore(){
   isOpen=!FASTFOOD_FORCED_CLOSE&&ffOk;
   const cakeOk=DEV_ALWAYS_OPEN||(m>=CAKE_OPEN_FROM&&m<CAKE_OPEN_UNTIL);
   isCakeOpen=!CAKE_FORCED_CLOSE&&cakeOk;
+  const biryaniOk=DEV_ALWAYS_OPEN||(m>=BIRYANI_OPEN_FROM&&m<BIRYANI_OPEN_UNTIL);
+  isBiryaniOpen=!BIRYANI_FORCED_CLOSE&&biryaniOk;
   const b=document.getElementById('banner');
   if(b){
     b.className='';
@@ -2338,11 +2570,17 @@ function checkStore(){
       else if(isCakeOpen){b.className='bo';b.textContent='Shri Ram Ji Bakery is open - closes at 9:00 PM';}
       else if(m<CAKE_OPEN_FROM){b.className='bs';b.textContent='Bakery Opens at 10:00 AM';}
       else{b.className='bc';b.textContent='Bakery closed - opens tomorrow at 10:00 AM';}
+    } else if(activeShop==='biryani'){
+      if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='🟢 Open';}
+      else if(BIRYANI_FORCED_CLOSE){b.className='bc';b.textContent='Shri Radhe Radhe is Closed';}
+      else if(isBiryaniOpen){b.className='bo';b.textContent='Shri Radhe Radhe is open - closes at 2:00 PM';}
+      else if(m<BIRYANI_OPEN_FROM){b.className='bs';b.textContent='Biryani Shop Opens at 9:00 AM';}
+      else{b.className='bc';b.textContent='Biryani Shop closed - opens tomorrow at 9:00 AM';}
     } else {
-      const anyOpen=isOpen||isCakeOpen;
+      const anyOpen=isOpen||isCakeOpen||isBiryaniOpen;
       if(DEV_ALWAYS_OPEN){b.className='bo';b.textContent='🟢 Open';}
       else if(anyOpen){b.className='bo';b.textContent="We're Open! Choose your shop below";}
-      else{b.className='bc';b.textContent='All shops closed - Fast Food: 3-9 PM | Bakery: 10 AM-9 PM';}
+      else{b.className='bc';b.textContent='All shops closed - Fast Food: 3-9 PM | Bakery: 10 AM-9 PM | Biryani: 9 AM-2 PM';}
     }
   }
   if(activeShop==='fastfood'){
@@ -2364,6 +2602,13 @@ function checkStore(){
       addCartBtn.style.opacity=_cakeEnabled?'1':'0.45';
       addCartBtn.style.cursor=_cakeEnabled?'pointer':'not-allowed';
     }
+  }
+  if(activeShop==='biryani'){
+    var _biryaniEnabled = isBiryaniOpen||DEV_ALWAYS_OPEN;
+    document.querySelectorAll('#biryaniGrid .addbtn').forEach(function(btn){
+      btn.disabled=!_biryaniEnabled;
+      btn.style.opacity=_biryaniEnabled?'1':'0.5';
+    });
   }
 
   refreshOrderBtn();
@@ -2785,6 +3030,10 @@ function renderSmartCategories(shop){
         ['photo','Photo Cake'],
         ['tiered','Tiered']
       ]
+    : shop==='biryani'
+    ? [
+        ['veg-biryani','🍚 Veg Biryani']
+      ]
     : [
         ['all','All'],
         ['pizza','Pizza'],
@@ -2807,6 +3056,11 @@ function handleSmartCategory(shop,key){
     setCakeFilter(key);
     var cakeSection=document.getElementById('s-cakes');
     if(cakeSection) cakeSection.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  if(shop==='biryani'){
+    var bg=document.getElementById('biryaniGrid');
+    if(bg) bg.scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
   fcat(null,key);
@@ -2956,12 +3210,14 @@ function refreshOrderBtn(sub){
     var note=document.getElementById('cnote');
     if(note){
       var hasCake=Object.keys(cart||{}).some(function(k){return cart[k]&&cart[k].isCake;});
-      var hasFf=Object.keys(cart||{}).some(function(k){return cart[k]&&!cart[k].isCake;});
-      var shopClosed=(hasFf&&!isOpen&&!DEV_ALWAYS_OPEN)||(hasCake&&!isCakeOpen&&!DEV_ALWAYS_OPEN);
+      var hasFf=Object.keys(cart||{}).some(function(k){return cart[k]&&cart[k].shop!=='biryani'&&!cart[k].isCake;});
+      var hasBiryani=Object.keys(cart||{}).some(function(k){return cart[k]&&cart[k].shop==='biryani';});
+      var shopClosed=(hasFf&&!isOpen&&!DEV_ALWAYS_OPEN)||(hasCake&&!isCakeOpen&&!DEV_ALWAYS_OPEN)||(hasBiryani&&!isBiryaniOpen&&!DEV_ALWAYS_OPEN);
       if(shopClosed){
         note.style.display='block';
         note.textContent= hasFf&&!isOpen
           ? (FASTFOOD_FORCED_CLOSE&&!DEV_ALWAYS_OPEN?'Fry Day closed - opens 3:00 PM':'Fast food: 3:00 PM - 9:00 PM only')
+          : hasBiryani&&!isBiryaniOpen ? 'Biryani shop closed - opens 9:00 AM (till 2:00 PM)'
           : 'Bakery closed - opens 10:00 AM';
       } else { note.style.display='none'; }
     }
@@ -2974,23 +3230,29 @@ async function placeOrder(){
   const keys=Object.keys(cart);
   if(!keys.length){bmAlert('Cart Empty','Please add some items to your cart first.','info');return;}
 
-  // Detect if this is a cake order or fast food order
+  // Detect if this is a cake order, fast food order, or biryani order
   var hasCakeItems = keys.some(function(k){return cart[k].isCake;});
-  var hasFfItems = keys.some(function(k){return !cart[k].isCake;});
+  var hasBiryaniItems = keys.some(function(k){return cart[k].shop==='biryani';});
+  var hasFfItems = keys.some(function(k){return !cart[k].isCake && cart[k].shop!=='biryani';});
 
-  if(hasCakeItems && !hasFfItems){
+  if(hasBiryaniItems && !hasFfItems && !hasCakeItems){
+    // Pure biryani order
+    if(!isBiryaniOpen&&!DEV_ALWAYS_OPEN){
+      bmAlert('Biryani Shop is Closed','Shri Radhe Radhe opens at 9:00 AM and closes at 2:00 PM.','info');return;
+    }
+  } else if(hasCakeItems && !hasFfItems && !hasBiryaniItems){
     // Pure cake order - check cake shop open
     if(!isCakeOpen&&!DEV_ALWAYS_OPEN){
       bmAlert('Bakery is Closed','Closed - Opens at 10:00 AM','info');return;
     }
-  } else if(!hasCakeItems){
+  } else if(!hasCakeItems && !hasBiryaniItems){
     // Pure fast food order - check fast food open
     if(!isOpen&&!DEV_ALWAYS_OPEN){
       var closedMsg=FASTFOOD_FORCED_CLOSE&&!DEV_ALWAYS_OPEN?'Closed - Opens at 3:00 PM':'Closed - Orders accepted 3:00 PM - 9:00 PM only.';
       bmAlert('Fry Day is Closed',closedMsg,'info');return;
     }
   } else {
-    // Mixed - check both
+    // Mixed - check all relevant
     if((!isOpen||FASTFOOD_FORCED_CLOSE)&&!DEV_ALWAYS_OPEN&&(!isCakeOpen)&&!DEV_ALWAYS_OPEN){
       bmAlert('Both Shops Closed','All shops are currently closed. Please check back during opening hours.','info');return;
     }
@@ -4864,21 +5126,7 @@ initTodaySpecial();
     });
   }catch(e){}
 })();
-;(function initPromoCarousel(){
-  var track=document.getElementById('promoTrack');
-  var dots=[].slice.call(document.querySelectorAll('#promoDots button'));
-  if(!track||!dots.length) return;
-  var current=0;
-  function paint(next){
-    current=(next+dots.length)%dots.length;
-    track.style.transform='translateX(-'+(current*100)+'%)';
-    dots.forEach(function(dot,index){ dot.classList.toggle('active', index===current); });
-  }
-  dots.forEach(function(dot,index){
-    dot.addEventListener('click',function(){ paint(index); });
-  });
-  setInterval(function(){ paint(current+1); }, 3600);
-})();
+// (old promo carousel removed — replaced by hc-shell carousel above)
 window.addEventListener('beforeunload',function(){
   document.body.classList.add('page-leaving');
 });
@@ -5200,6 +5448,7 @@ window.addEventListener('beforeunload',function(){
 function updateShopStatusBadges(){
   var ffB=document.getElementById('ffShopStatus');
   var ckB=document.getElementById('cakeShopStatus');
+  var brB=document.getElementById('biryaniShopStatus');
   function badge(el,open,closedLabel){
     if(!el)return;
     if(open){el.style.cssText='display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700;margin-bottom:7px;background:#F0FFF4;color:#16a34a;border:1px solid #B7F5C8';el.textContent='Open Now';}
@@ -5207,10 +5456,13 @@ function updateShopStatusBadges(){
   }
   badge(ffB, isOpen||DEV_ALWAYS_OPEN, 'Closed - Opens 3:00 PM');
   badge(ckB, isCakeOpen||DEV_ALWAYS_OPEN, 'Closed - Opens 10:00 AM');
+  badge(brB, isBiryaniOpen||DEV_ALWAYS_OPEN, 'Closed - Opens 9:00 AM');
   var ffCard=document.getElementById('ffCard');
   var ckCard=document.getElementById('cakeCard');
+  var brCard=document.getElementById('biryaniCard');
   if(ffCard)ffCard.style.opacity=(FASTFOOD_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)?'0.82':'1';
   if(ckCard)ckCard.style.opacity=(CAKE_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)?'0.82':'1';
+  if(brCard)brCard.style.opacity=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)?'0.82':'1';
 }
 function showShopPicker(){
   updateBottomNav('home');
@@ -5218,7 +5470,7 @@ function showShopPicker(){
   sessionStorage.removeItem('bm_active_shop'); // clear saved shop on back
   updateShopSwitcher(null);
   renderSmartCategories(null);
-  var els={shopPicker:'block',ffShopView:'none',cakeShopView:'none',msec:'none',nr:'none'};
+  var els={shopPicker:'block',ffShopView:'none',cakeShopView:'none',biryaniShopView:'none',msec:'none',nr:'none'};
   Object.keys(els).forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=els[id];});
   // Hide search bar on shop picker landing page
   var mainNav=document.getElementById('mainNav');
@@ -5230,6 +5482,7 @@ function updateShopSwitcher(shop){
   var ssb=document.getElementById('shopSwitcherBar');
   var btnFf=document.getElementById('ssBtnFf');
   var btnCake=document.getElementById('ssBtnCake');
+  var btnBiryani=document.getElementById('ssBtnBiryani');
   if(ssb) ssb.style.display='flex';
   if(btnFf){
     btnFf.classList.toggle('active', shop==='fastfood');
@@ -5238,6 +5491,10 @@ function updateShopSwitcher(shop){
   if(btnCake){
     btnCake.classList.toggle('active', shop==='cake');
     btnCake.disabled=false;
+  }
+  if(btnBiryani){
+    btnBiryani.classList.toggle('active', shop==='biryani');
+    btnBiryani.disabled=false;
   }
 }
 function enterShop(shop){
@@ -5269,9 +5526,11 @@ function enterShop(shop){
   } else if(shop==='cake'){
     var ckv=document.getElementById('cakeShopView');
     var ffv=document.getElementById('ffShopView');
+    var brv=document.getElementById('biryaniShopView');
     var msec=document.getElementById('msec');
     if(ckv)ckv.style.display='block';
     if(ffv)ffv.style.display='none';
+    if(brv)brv.style.display='none';
     if(msec)msec.style.display='none';
     var cakeNotice=document.getElementById('cakeClosedNoticeBar');
     if(cakeNotice)cakeNotice.style.display=(CAKE_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!isCakeOpen&&!DEV_ALWAYS_OPEN)?'flex':'none';
@@ -5287,6 +5546,25 @@ function enterShop(shop){
       if(typeof renderCakeGrid==='function')renderCakeGrid();
       var cakeGrid=document.getElementById('cakeGrid');
       if(cakeGrid) cakeGrid.scrollIntoView({behavior:'smooth',block:'start'});
+    },100);
+  } else if(shop==='biryani'){
+    var brv=document.getElementById('biryaniShopView');
+    var ffv=document.getElementById('ffShopView');
+    var ckv=document.getElementById('cakeShopView');
+    var msec=document.getElementById('msec');
+    if(brv)brv.style.display='block';
+    if(ffv)ffv.style.display='none';
+    if(ckv)ckv.style.display='none';
+    if(msec)msec.style.display='none';
+    var biryaniNotice=document.getElementById('biryaniClosedNotice');
+    if(biryaniNotice)biryaniNotice.style.display=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!isBiryaniOpen&&!DEV_ALWAYS_OPEN)?'flex':'none';
+    renderSmartCategories('biryani');
+    renderBiryaniGrid();
+    setTimeout(function(){
+      if(window._shopSwitchToken!==switchToken || activeShop!=='biryani') return;
+      renderBiryaniGrid();
+      var bg=document.getElementById('biryaniGrid');
+      if(bg) bg.scrollIntoView({behavior:'smooth',block:'start'});
     },100);
   }
   checkStore();
