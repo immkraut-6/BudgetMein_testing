@@ -547,24 +547,40 @@ window.bmOrderTG=async function(order,items,sub,del,plat){
 };
 window.bmFeedbackTG=async function(data){
   const u=JSON.parse(localStorage.getItem("bm_user")||"{}");
-  const stars=(data.stars||0)+"/5";
-  const itemsText=data.itemsText||"";
-  const totalText=(typeof data.total!=="undefined"&&data.total!==null)?bmMoney(data.total):"";
-  const addrText=data.address?("\nAddress: "+data.address):"";
-  await tg("feedback",
-    "<b>NEW FEEDBACK</b>\n--------------\n"+
-    "<b>Name:</b> "+(u.name||"Guest")+"\n"+
-    (u.phone?("<b>Phone:</b> "+u.phone+"\n"):"")+
-    "<b>Order:</b> #"+data.orderId+"\n"+
-    (itemsText?("<b>Items:</b>\n"+itemsText+"\n"):"")+
-    "Rating: "+stars+"\n"+
-    "Food: "+data.foodRating+"\n"+
-    "Delivery: "+data.speedRating+
-    (data.comment?"\nComment: "+data.comment:"")+
-    (totalText?("\n<b>Total:</b> "+totalText):"")+
-    addrText+
-    "\n"+new Date().toLocaleString("en-IN")
-  );
+
+  // Visual star string e.g. ★★★★☆
+  var starCount=parseInt(data.stars||0);
+  var starStr='';
+  for(var si=1;si<=5;si++) starStr+=(si<=starCount?'\u2605':'\u2606');
+
+  // Food rating label with emoji
+  var foodMap={loved:'\ud83d\ude0d Loved it',good:'\ud83d\ude0a Good',okay:'\ud83d\ude10 Okay',poor:'\ud83d\ude1e Poor','':'\u2014 Not rated'};
+  var speedMap={superfast:'\u26a1 Super Fast',ontime:'\u2705 On Time',late:'\ud83d\udd50 Little Late',verylate:'\u23f3 Very Late','':'\u2014 Not rated'};
+  var foodLabel=foodMap[data.foodRating||'']||data.foodRating||'\u2014';
+  var speedLabel=speedMap[data.speedRating||'']||data.speedRating||'\u2014';
+
+  const totalText=(typeof data.total!=="undefined"&&data.total!==null)?('\u20b9'+data.total):'';
+  const itemsText=data.itemsText||'';
+  const time=new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  var msg=
+    '\ud83d\udcdd <b>NEW FEEDBACK</b>\n'+
+    '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n'+
+    '\ud83d\udc64 <b>Name:</b> '+(u.name||'Guest')+'\n'+
+    (u.phone?('\ud83d\udcde <b>Phone:</b> '+u.phone+'\n'):'')+
+    '\ud83d\udce6 <b>Order:</b> #'+data.orderId+'\n'+
+    (totalText?('\ud83d\udcb0 <b>Total:</b> '+totalText+'\n'):'')+
+    (data.address?('\ud83d\udccd <b>Address:</b> '+data.address+'\n'):'')+
+    '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n'+
+    (itemsText?('\ud83d\uded2 <b>Items:</b>\n'+itemsText+'\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n'):'')+
+    '\u2b50 <b>Rating:</b> '+starStr+' ('+starCount+'/5)\n'+
+    '\ud83c\udf7d\ufe0f <b>Food Quality:</b> '+foodLabel+'\n'+
+    '\ud83d\udeef\ufe0f <b>Delivery Speed:</b> '+speedLabel+'\n'+
+    (data.comment?('\ud83d\udcac <b>Comment:</b> <i>'+data.comment+'</i>\n'):'')+
+    '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n'+
+    '\ud83d\udd52 '+time;
+
+  await tg("feedback", msg);
 };
 window.bmNewCustomerTG=async function(user){
   await tg('customer','<b>NEW CUSTOMER</b>\n--------------\n<b>Name:</b> '+user.name+'\n<b>Phone:</b> '+user.phone+'\n<b>Email:</b> '+(user.email||'N/A')+'\n<b>Address:</b> '+(user.address||'N/A')+'\n'+new Date().toLocaleString('en-IN'));
@@ -1002,23 +1018,54 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 /* ---- STAR RATING ---- */
 .stars{display:flex;gap:6px;justify-content:center;margin:8px 0 4px}
-.star{font-size:1.8rem;cursor:pointer;color:#D0D0D0;transition:color .15s,transform .15s;line-height:1}
-.star:hover,.star.hov,.star.sel{color:var(--g);transform:scale(1.15)}
+.star{font-size:1.8rem;cursor:pointer;color:#D0D0D0;transition:color .15s,transform .15s;line-height:1;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:inline-block;padding:4px}
+.star:hover,.star.hov,.star.sel{color:var(--g);transform:scale(1.18)}
 /* ---- FEEDBACK CARD ---- */
 .feedback-card{background:var(--w);border-radius:14px;padding:20px;width:100%;max-width:420px;box-shadow:0 4px 20px rgba(0,0,0,.08);margin-bottom:18px;animation:slideup .4s ease-out;display:none}
 .feedback-card.on{display:block}
 @keyframes slideup{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 .fb-title{font-family:var(--fl);font-size:1.1rem;font-weight:800;color:var(--n);margin-bottom:4px;text-align:center}
 .fb-sub{font-size:.8rem;color:var(--mu);margin-bottom:14px;text-align:center}
-.fb-q{font-size:.83rem;font-weight:600;color:var(--tx);margin:12px 0 6px}
-.fb-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
-.fb-opt{padding:6px 12px;border-radius:20px;border:1.5px solid var(--bd);font-size:.78rem;font-weight:600;cursor:pointer;color:var(--mu);background:var(--w);transition:var(--tr)}
-.fb-opt.sel{border-color:var(--p);color:var(--p);background:#FFF6F3}
-.fb-textarea{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:10px 12px;font-family:var(--fb);font-size:.82rem;outline:none;resize:vertical;min-height:70px;margin-top:4px}
-.fb-textarea:focus{border-color:var(--p)}
-.fb-submit{width:100%;margin-top:16px;padding:12px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-family:var(--fb);font-size:.92rem;font-weight:700;box-shadow:0 6px 18px rgba(255,69,0,.3);transition:var(--tr)}
-.fb-submit:hover{transform:scale(1.02)}
-.fb-thanks{text-align:center;padding:20px;font-size:.9rem;font-weight:600;color:var(--ok);display:none}
+.fb-q{font-size:.84rem;font-weight:700;color:var(--tx);margin:14px 0 8px;display:flex;align-items:center;gap:6px}
+.fb-q::before{content:'';display:inline-block;width:3px;height:14px;background:var(--p);border-radius:2px;flex-shrink:0}
+.fb-opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.fb-opt{
+  padding:9px 16px;
+  border-radius:22px;
+  border:1.5px solid #e2e8f0;
+  font-size:.79rem;
+  font-weight:600;
+  cursor:pointer;
+  color:#64748b;
+  background:#f8fafc;
+  transition:all .18s ease;
+  touch-action:manipulation;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  outline:none;
+  position:relative;
+  overflow:hidden;
+}
+.fb-opt:active{transform:scale(0.95)}
+.fb-opt.sel{
+  border-color:var(--p);
+  color:var(--p);
+  background:#FFF3EE;
+  box-shadow:0 2px 8px rgba(255,69,0,.18);
+  font-weight:700;
+}
+.fb-opt.sel::after{content:'✓';margin-left:5px;font-size:.72rem}
+.fb-textarea{width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px 13px;font-family:var(--fb);font-size:.83rem;outline:none;resize:vertical;min-height:72px;margin-top:4px;background:#f8fafc;box-sizing:border-box;color:var(--tx)}
+.fb-textarea:focus{border-color:var(--p);background:#fff;box-shadow:0 0 0 3px rgba(255,69,0,.08)}
+.fb-submit{width:100%;margin-top:18px;padding:13px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#FF6034,var(--p));color:#fff;font-family:var(--fb);font-size:.94rem;font-weight:700;box-shadow:0 6px 20px rgba(255,69,0,.32);transition:var(--tr);letter-spacing:.02em}
+.fb-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,69,0,.4)}
+.fb-submit:active{transform:scale(0.98)}
+.fb-thanks{text-align:center;padding:24px 16px;font-size:.92rem;font-weight:700;color:var(--ok);display:none;background:#F0FFF4;border-radius:12px;margin-top:12px;border:1.5px solid #B7F5C8}
+.fb-divider{height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin:4px 0 2px}
+/* star size bump in feedback modal */
+#fbModal .stars{justify-content:flex-start;gap:4px;margin:6px 0 10px}
+#fbModal .star{font-size:2.1rem;padding:6px 4px}
 /* ---- PROFILE FEEDBACK ROW ---- */
 .oh-stars{font-size:.78rem;color:var(--g);margin-top:3px}
 .oh-fbtn{background:none;border:1px solid var(--p);border-radius:12px;padding:2px 8px;font-size:.7rem;font-weight:700;color:var(--p);cursor:pointer;margin-top:4px;transition:var(--tr)}
@@ -1035,11 +1082,11 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
 /* ---- ITEM MODAL ---- */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1600;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .28s;backdrop-filter:blur(4px)}
 .modal-overlay.on{opacity:1;pointer-events:all}
-.modal{background:var(--w);border-radius:18px;width:100%;max-width:440px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.35);animation:mslide .28s ease-out both}
+.modal{background:var(--w);border-radius:18px;width:100%;max-width:440px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.35);animation:mslide .28s ease-out both}
 @keyframes mslide{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-head{background:var(--n);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-radius:18px 18px 0 0}
+.modal-head{background:var(--n);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-radius:18px 18px 0 0;flex-shrink:0}
 .modal-head h3{font-family:var(--fl);font-size:1.1rem;font-weight:700}
-.modal-body{padding:20px}
+.modal-body{padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1}
 .modal-section{margin-bottom:18px}
 .modal-section h4{font-family:var(--fl);font-size:.95rem;font-weight:700;color:var(--n);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
 .radio-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:var(--tr);border:1.5px solid transparent}
@@ -1981,32 +2028,35 @@ document.getElementById('srch').addEventListener('input',function(){
       <button class="sclose" onclick="closeFeedbackModal()">&#10005;</button>
     </div>
     <div class="modal-body">
-      <div class="fb-sub" style="text-align:left;margin:0 0 10px">Help us improve by sharing your feedback.</div>
-      <div class="fb-q" style="margin-top:0">Rate your experience</div>
+      <div class="fb-sub" style="text-align:left;margin:0 0 14px;font-size:.82rem">
+        ⭐ Your feedback helps us serve you better!
+      </div>
+      <div class="fb-q" style="margin-top:0">Overall Experience</div>
       <div class="stars" id="fbModalStars" style="justify-content:flex-start">
-        <span class="star" data-v="1">&#9733;</span>
-        <span class="star" data-v="2">&#9733;</span>
-        <span class="star" data-v="3">&#9733;</span>
-        <span class="star" data-v="4">&#9733;</span>
-        <span class="star" data-v="5">&#9733;</span>
+        <span class="star" data-v="1" onclick="bmSelectFbStar(this)">&#9733;</span>
+        <span class="star" data-v="2" onclick="bmSelectFbStar(this)">&#9733;</span>
+        <span class="star" data-v="3" onclick="bmSelectFbStar(this)">&#9733;</span>
+        <span class="star" data-v="4" onclick="bmSelectFbStar(this)">&#9733;</span>
+        <span class="star" data-v="5" onclick="bmSelectFbStar(this)">&#9733;</span>
       </div>
-      <div class="fb-q">How was the food quality?</div>
+      <div class="fb-divider"></div>
+      <div class="fb-q">🍽️ Food Quality</div>
       <div class="fb-opts" id="fbModalFood">
-        <button class="fb-opt" data-g="food" data-v="loved">Loved it</button>
-        <button class="fb-opt" data-g="food" data-v="good">Good</button>
-        <button class="fb-opt" data-g="food" data-v="okay">Okay</button>
-        <button class="fb-opt" data-g="food" data-v="poor">Poor</button>
+        <button type="button" class="fb-opt" data-g="food" data-v="loved" onclick="bmSelectFbOpt(this)">😍 Loved it</button>
+        <button type="button" class="fb-opt" data-g="food" data-v="good" onclick="bmSelectFbOpt(this)">😊 Good</button>
+        <button type="button" class="fb-opt" data-g="food" data-v="okay" onclick="bmSelectFbOpt(this)">😐 Okay</button>
+        <button type="button" class="fb-opt" data-g="food" data-v="poor" onclick="bmSelectFbOpt(this)">😞 Poor</button>
       </div>
-      <div class="fb-q">How was delivery speed?</div>
+      <div class="fb-q">🚴 Delivery Speed</div>
       <div class="fb-opts" id="fbModalSpeed">
-        <button class="fb-opt" data-g="speed" data-v="superfast">Super Fast</button>
-        <button class="fb-opt" data-g="speed" data-v="ontime">On Time</button>
-        <button class="fb-opt" data-g="speed" data-v="late">Little Late</button>
-        <button class="fb-opt" data-g="speed" data-v="verylate">Very Late</button>
+        <button type="button" class="fb-opt" data-g="speed" data-v="superfast" onclick="bmSelectFbOpt(this)">⚡ Super Fast</button>
+        <button type="button" class="fb-opt" data-g="speed" data-v="ontime" onclick="bmSelectFbOpt(this)">✅ On Time</button>
+        <button type="button" class="fb-opt" data-g="speed" data-v="late" onclick="bmSelectFbOpt(this)">🕐 Little Late</button>
+        <button type="button" class="fb-opt" data-g="speed" data-v="verylate" onclick="bmSelectFbOpt(this)">⏳ Very Late</button>
       </div>
-      <div class="fb-q">Any comments? <span style="font-weight:400;color:var(--mu)">(optional)</span></div>
-      <textarea class="fb-textarea" id="fbModalComment" placeholder="Tell us how we can improve..."></textarea>
-      <button class="fb-submit" id="fbModalSubmit" onclick="submitOrderFeedback()">Submit Feedback</button>
+      <div class="fb-q">💬 Comments <span style="font-weight:400;color:var(--mu);font-size:.75rem">(optional)</span></div>
+      <textarea class="fb-textarea" id="fbModalComment" placeholder="Tell us how we can do better..."></textarea>
+      <button type="button" class="fb-submit" id="fbModalSubmit" onclick="submitOrderFeedback()">Submit Feedback</button>
       <div class="fb-thanks" id="fbModalThanks"></div>
     </div>
   </div>
@@ -2402,7 +2452,7 @@ fries:[
 {id:'f3',e:'??',n:'Cheesy Fries',d:'Fries loaded with cheese sauce',p:80,badge:'bs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130663/cheese-fries_i6fqiq.jpg'},
 ],
 sandwich:[
-{id:'s1',e:'🥪',n:'Sandwich Lite',d:'Simple &amp; fresh grilled sandwich',ps:{'4pc':99},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1775572050/istockphoto-1221237754-612x612_h1qudx.jpg'},
+{id:'s1',e:'🥪',n:'Sandwich Lite',d:'Simple &amp; fresh grilled sandwich',ps:{'4pc':99},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130719/Sandwich_lite_pys5qk.jpg'},
 {id:'s2',e:'🥪',n:'Grill Sandwich',d:'Grilled with veggies &amp; cheese',ps:{'4pc':139},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130719/Sandwich_lite_pys5qk.jpg'},
 {id:'s3',e:'🥪',n:'Paneer Sandwich',d:'Marinated paneer, spiced filling',ps:{'4pc':159},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130714/Paneer_sandwich_sz369u.jpg'},
 {id:'s4',e:'🥪',n:'Mozzarella Sandwich',d:'Melty mozzarella, herb spread',ps:{'4pc':159},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130713/Mozzorella_Sandwich_bgxwa1.jpg'},
@@ -4691,34 +4741,99 @@ function closeFeedbackModal(){
   document.body.style.overflow='';
   _fbOrderId=null;
 }
+// ================================================================
+// FEEDBACK MODAL - GLOBAL HELPERS (inline onclick fallback)
+// These are global so onclick="bmSelectFbOpt(this)" works reliably
+// on ALL mobile browsers including Android WebView & iOS Safari
+// ================================================================
+window.bmSelectFbOpt = function(btn){
+  if(!btn) return;
+  var grp = btn.dataset.g;
+  document.querySelectorAll('#fbModal .fb-opt[data-g="'+grp+'"]').forEach(function(b){
+    b.classList.remove('sel');
+  });
+  btn.classList.add('sel');
+};
+window.bmSelectFbStar = function(el){
+  if(!el) return;
+  var v = parseInt(el.dataset.v||'0');
+  _fbStars = v;
+  document.querySelectorAll('#fbModal .star').forEach(function(s){
+    var sv = parseInt(s.dataset.v||'0');
+    s.classList.toggle('sel', sv <= v);
+    s.classList.remove('hov');
+  });
+};
 function initFeedbackModal(){
-  // Stars
-  document.querySelectorAll('#fbModal .star').forEach(function(star){
-    var v=parseInt(star.dataset.v||'0');
-    star.addEventListener('click',function(){
-      _fbStars=v;
-      document.querySelectorAll('#fbModal .star').forEach(function(s){
-        var sv=parseInt(s.dataset.v||'0');
-        s.classList.toggle('sel',sv<=_fbStars);
-      });
+  var fbModalEl = document.getElementById('fbModal');
+  if(!fbModalEl) return;
+
+  // ── STARS: event delegation on the modal (works even when hidden at init) ──
+  function paintStars(n){
+    document.querySelectorAll('#fbModal .star').forEach(function(s){
+      var sv=parseInt(s.dataset.v||'0');
+      s.classList.toggle('sel',sv<=n);
+      s.classList.remove('hov');
     });
-    star.addEventListener('mouseenter',function(){
-      document.querySelectorAll('#fbModal .star').forEach(function(s){
-        var sv=parseInt(s.dataset.v||'0');
-        s.classList.toggle('hov',sv<=v);
-      });
-    });
-    star.addEventListener('mouseleave',function(){
-      document.querySelectorAll('#fbModal .star').forEach(function(s){s.classList.remove('hov');});
+  }
+
+  // Delegate star events from the modal container
+  fbModalEl.addEventListener('touchend', function(e){
+    var star = e.target.closest('.star');
+    if(!star || !fbModalEl.contains(star)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    _fbStars = parseInt(star.dataset.v||'0');
+    paintStars(_fbStars);
+  }, {passive:false});
+
+  fbModalEl.addEventListener('click', function(e){
+    var star = e.target.closest('.star');
+    if(!star || !fbModalEl.contains(star)) return;
+    e.stopPropagation();
+    _fbStars = parseInt(star.dataset.v||'0');
+    paintStars(_fbStars);
+  });
+
+  // Star hover (desktop only)
+  fbModalEl.addEventListener('mouseover', function(e){
+    var star = e.target.closest('.star');
+    if(!star) return;
+    var v = parseInt(star.dataset.v||'0');
+    document.querySelectorAll('#fbModal .star').forEach(function(s){
+      s.classList.toggle('hov', parseInt(s.dataset.v||'0') <= v);
     });
   });
-  // Options
-  document.querySelectorAll('#fbModal .fb-opt').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var grp=this.dataset.g;
-      document.querySelectorAll('#fbModal .fb-opt[data-g="'+grp+'"]').forEach(function(b){b.classList.remove('sel');});
-      this.classList.add('sel');
+  fbModalEl.addEventListener('mouseout', function(e){
+    var star = e.target.closest('.star');
+    if(!star) return;
+    document.querySelectorAll('#fbModal .star').forEach(function(s){ s.classList.remove('hov'); });
+  });
+
+  // ── OPTIONS: event delegation for food & speed chips ──
+  // FIX: Using delegation means this works regardless of when the modal was hidden
+  function handleOptSelect(e){
+    var btn = e.target.closest('.fb-opt');
+    if(!btn || !fbModalEl.contains(btn)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var grp = btn.dataset.g;
+    // Deselect all in same group
+    fbModalEl.querySelectorAll('.fb-opt[data-g="'+grp+'"]').forEach(function(b){
+      b.classList.remove('sel');
     });
+    // Select tapped one
+    btn.classList.add('sel');
+  }
+
+  fbModalEl.addEventListener('touchend', function(e){
+    var btn = e.target.closest('.fb-opt');
+    if(btn) handleOptSelect(e);
+  }, {passive:false});
+
+  fbModalEl.addEventListener('click', function(e){
+    var btn = e.target.closest('.fb-opt');
+    if(btn) handleOptSelect(e);
   });
 }
 function submitOrderFeedback(){
@@ -4726,16 +4841,28 @@ function submitOrderFeedback(){
     if(!_fbOrderId){bmAlert('Error','Missing order ID.','error');return;}
     if(!_fbStars){bmAlert('Select Rating','Please tap a star to rate your experience.','warning');return;}
 
-    // Feedback should be available only after delivery (realistic flow)
+    // ── Delivery check: allow feedback once order is delivered or 20+ min old ──
     var orders=JSON.parse(localStorage.getItem('bm_orders')||'[]');
     var ord=orders.find(function(o){
       var oid=(o&&((o.id||o.orderId)||''))||'';
       return oid===_fbOrderId;
     });
-    var elapsedMin=ord && ord.startTime ? ((Date.now()-ord.startTime)/60000) : null;
-    var isDelivered = (ord && ord.status==='Delivered') || (elapsedMin!==null && elapsedMin>=40);
+    // Safely convert startTime (plain ms, Firestore {seconds}, or {toMillis()})
+    var stMs=null;
+    if(ord && ord.startTime){
+      var _st=ord.startTime;
+      if(typeof _st==='number') stMs=_st;
+      else if(_st && typeof _st.toMillis==='function') stMs=_st.toMillis();
+      else if(_st && _st.seconds) stMs=_st.seconds*1000;
+      else if(typeof _st==='string') stMs=parseInt(_st)||null;
+    }
+    var elapsedMin = stMs ? ((Date.now()-stMs)/60000) : null;
+    var isDelivered = (ord && (ord.status==='Delivered'||ord.status==='delivered'))
+                    || (elapsedMin!==null && elapsedMin>=20)
+                    || (elapsedMin===null); // no startTime = don't block
     if(!isDelivered){
-      bmAlert('Not Yet!','Feedback is available after your order is delivered.','info');
+      var _rem=Math.ceil(20-(elapsedMin||0));
+      bmAlert('Almost There!','Your order is on the way. Feedback will unlock in ~'+_rem+' min.','info');
       return;
     }
 
@@ -4758,10 +4885,16 @@ function submitOrderFeedback(){
       try{
         if(ord && ord.itemsFull && ord.itemsFull.length){
           itemsText=ord.itemsFull.map(function(i){
-            return "ï¿½ "+(i.e||"")+" "+(i.n||"")+(i.meta?" ("+i.meta+")":"")+" x"+(i.qty||1)+"   <b>?"+((i.p||0)*(i.qty||1))+"</b>";
-          }).join("\n");
-        } else if(ord && ord.items){
-          itemsText=String(ord.items);
+            var name=(i.n||i.name||'Item');
+            var meta=i.meta?(' ('+i.meta+')'):'';
+            var qty=i.qty||i.quantity||1;
+            var price=(i.p||i.price||0)*qty;
+            return '\u2023 '+name+meta+' x'+qty+'  \u2014  <b>\u20b9'+price+'</b>';
+          }).join('\n');
+        } else if(ord && ord.items && Array.isArray(ord.items)){
+          itemsText=ord.items.map(function(i){
+            return '\u2023 '+(i.name||i.n||'Item')+' x'+(i.quantity||i.qty||1)+'  \u2014  <b>\u20b9'+((i.price||i.p||0)*(i.quantity||i.qty||1))+'</b>';
+          }).join('\n');
         }
       }catch(e){}
 
@@ -4791,8 +4924,8 @@ function submitOrderFeedback(){
     document.getElementById('fbModalSubmit').style.display='none';
     var thanks=document.getElementById('fbModalThanks');
     thanks.style.display='block';
-    thanks.textContent='Thanks! Your feedback has been submitted.';
-    setTimeout(closeFeedbackModal,900);
+    thanks.innerHTML='🎉 Thanks! Your feedback has been received.<br><span style="font-size:.8rem;font-weight:500;color:#16a34a">It helps us serve you better!</span>';
+    setTimeout(closeFeedbackModal,1400);
   }catch(e){
     bmAlert('Error','Could not submit feedback. Please try again.','error');
   }
