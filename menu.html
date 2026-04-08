@@ -1309,16 +1309,16 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
 .hc-kicker::before{content:'';width:18px;height:2px;background:var(--p);border-radius:2px;display:inline-block}
 .hc-title{font-family:var(--fl);font-size:clamp(1.35rem,5vw,1.9rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,.4)}
 .hc-sub{font-size:.78rem;color:rgba(255,255,255,.82);line-height:1.5;margin-bottom:12px;max-width:310px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
-.hc-cta{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:50px;padding:9px 18px;font-family:var(--fb);font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,69,0,.35);transition:transform .18s ease,box-shadow .18s ease}
+.hc-cta{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:50px;padding:9px 20px;font-family:var(--fb);font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,69,0,.35);transition:transform .18s ease,box-shadow .18s ease;width:auto;align-self:flex-start}
 .hc-cta:hover{transform:scale(1.04);box-shadow:0 8px 24px rgba(255,69,0,.45)}
 .hc-badge{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.22);border-radius:50px;padding:5px 14px;font-size:.7rem;font-weight:700;color:#fff;letter-spacing:.04em}
 /* dots */
-.hc-dots{position:absolute;bottom:14px;right:18px;display:flex;gap:6px;z-index:10}
-.hc-dot{width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,.35);border:none;padding:0;cursor:pointer;transition:width .3s ease,background .3s ease}
-.hc-dot.active{width:20px;background:#fff}
+.hc-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:10}
+.hc-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.4);border:none;padding:0;cursor:pointer;transition:width .3s ease,background .3s ease}
+.hc-dot.active{width:24px;background:#fff}
 /* nav arrows */
-.hc-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;font-size:1rem;transition:background .2s;flex-shrink:0}
-.hc-arr:hover{background:rgba(255,255,255,.28)}
+.hc-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;font-size:1.2rem;line-height:1;transition:background .2s,transform .2s;flex-shrink:0;padding:0}
+.hc-arr:hover{background:rgba(255,255,255,.25);transform:translateY(-50%) scale(1.08)}
 .hc-arr-l{left:12px}
 .hc-arr-r{right:12px}
 /* progress bar */
@@ -1358,7 +1358,7 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
 
     <!-- SLIDE 3: Fresh Veg Biryani -->
     <div class="hc-slide" id="hcSlide2">
-      <div class="hc-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80&fm=jpg');background-position:center 45%"></div>
+      <div class="hc-slide-bg" style="background-image:url('https://res.cloudinary.com/dklefbj2a/image/upload/v1775571413/WhatsApp_Image_2026-04-07_at_7.46.13_PM_zcglo1.jpg');background-position:center 45%"></div>
       <div class="hc-overlay" style="background:linear-gradient(150deg,rgba(5,46,22,.85) 0%,rgba(22,163,74,.22) 60%,rgba(0,0,0,.2) 100%)"></div>
       <div class="hc-content">
         <div class="hc-kicker">Shri Radhe Radhe</div>
@@ -1370,10 +1370,6 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
     </div>
 
   </div>
-
-  <!-- Arrows -->
-  <button class="hc-arr hc-arr-l" id="hcArrL" onclick="hcGo(-1)" aria-label="Previous">&#8249;</button>
-  <button class="hc-arr hc-arr-r" id="hcArrR" onclick="hcGo(1)" aria-label="Next">&#8250;</button>
 
   <!-- Dots -->
   <div class="hc-dots" id="hcDots">
@@ -1439,26 +1435,6 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
 </script>
 <!-- SHOP PICKER -->
 <div id="shopPicker" style="display:none;background:var(--bg)">
-  <!-- Hero welcome banner -->
-  <div style="background:linear-gradient(135deg,#1A1A2E 0%,#2C1A40 55%,#3D1200 100%);padding:28px 5% 24px;text-align:center;position:relative;overflow:hidden">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(255,69,0,.18),transparent 65%)"></div>
-    <div style="position:absolute;top:-40px;left:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,69,0,.06);pointer-events:none"></div>
-    <div style="position:absolute;bottom:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,215,0,.04);pointer-events:none"></div>
-    <div style="position:relative;z-index:1">
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.25);border-radius:50px;padding:4px 14px;font-size:.65rem;font-weight:700;color:#FFD700;letter-spacing:.1em;margin-bottom:12px">&#x1F4CD; JAHANGIR PURI, DELHI</div>
-      <h2 style="font-family:var(--fl);font-size:clamp(1.4rem,5vw,1.9rem);font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2">
-        Ghar Baitha Order Kar,<br/><span style="color:#FFD700">Budget Mein Kha! &#x1F37D;&#xFE0F;</span>
-      </h2>
-      <p style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:16px;line-height:1.7;max-width:360px;margin-left:auto;margin-right:auto">
-        Fry Day ka pizza ho, Shri Ram Ji ka cake ho, ya Shri Radhe Radhe ki biryani — sab kuch ek app mein, Jahangir Puri ke liye.
-      </p>
-      <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center">
-        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:5px 13px;border-radius:50px;font-size:.7rem;font-weight:600">&#x26A1; Fast Delivery</span>
-        <span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:5px 13px;border-radius:50px;font-size:.7rem;font-weight:600">&#x1F4B8; Cash on Delivery</span>
-        <span style="background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);color:#FFD700;padding:5px 13px;border-radius:50px;font-size:.7rem;font-weight:600">&#x1F381; Free First Delivery</span>
-      </div>
-    </div>
-  </div>
   <!-- Shop cards -->
   <div style="padding:20px 5% 32px">
   <p style="text-align:center;font-size:.8rem;color:var(--mu);margin-bottom:16px;font-weight:600;letter-spacing:.3px;text-transform:uppercase">Choose Your Shop</p>
@@ -1500,7 +1476,6 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
           <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.2)">&#x1F372;</div>
           <div style="flex:1;min-width:0">
             <div style="font-family:var(--fl);font-size:1.05rem;font-weight:800;color:#fff">Shri Radhe Radhe</div>
-            <div style="font-size:.65rem;color:rgba(255,255,255,.65);margin-top:2px">K Block, Jahangir Puri</div>
             <div style="display:flex;gap:5px;margin-top:5px">
               <span style="background:rgba(134,239,172,.2);border:1px solid rgba(134,239,172,.4);color:#86efac;padding:2px 8px;border-radius:50px;font-size:.62rem;font-weight:700">&#x1F7E2; Pure Veg</span>
               <span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:2px 8px;border-radius:50px;font-size:.62rem;font-weight:700">&#x2728; NEW</span>
@@ -1604,7 +1579,6 @@ footer{background:var(--n);color:#fff;padding:36px 5% 20px}
       </div>
       <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(22,163,74,.25);border:1px solid rgba(22,163,74,.5);border-radius:50px;padding:4px 12px;font-size:.65rem;font-weight:700;color:#86efac;letter-spacing:.08em;margin-bottom:10px">&#x1F7E2; 100% PURE VEG</div>
       <h1 style="font-size:clamp(1.5rem,5vw,2.2rem)">Shri Radhe Radhe &#x1F372;</h1>
-      <p style="font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:4px">&#x1F4CD; K Block, Jahangir Puri, Delhi 110033</p>
       <p style="margin-bottom:14px">Taaza veg biryani, ghar tak — roz subah ki taazgi ke saath.</p>
       <div class="hbadges">
         <span class="hb" style="background:rgba(22,163,74,.25);border-color:rgba(22,163,74,.5);color:#86efac">&#x23F0; 25 min delivery</span>
@@ -2474,58 +2448,65 @@ const BDGMAP={bs:'Bestseller',sp:'Spicy',ml:'Most Loved'};
 // ---- BIRYANI DATA ----
 const BIRYANI_IMG = 'https://res.cloudinary.com/dklefbj2a/image/upload/v1775571413/WhatsApp_Image_2026-04-07_at_7.46.13_PM_zcglo1.jpg';
 const BIRYANI_MENU = [
-  {id:'br1', n:'Veg Biryani', d:'Aromatic basmati rice with fresh vegetables & whole spices', sizes:{'250g':39,'400g':49,'500g':69}, img:BIRYANI_IMG},
+  {id:'br1-250', n:'Veg Biryani', size:'250g', cat:'250g', price:39,  d:'Perfect solo portion — aromatic basmati rice with fresh veggies & whole spices.', badge:'Best Value', img:BIRYANI_IMG},
+  {id:'br1-400', n:'Veg Biryani', size:'400g', cat:'400g', price:49,  d:'Filling family-style serving — rich dum-cooked veg biryani with saffron aroma.', badge:'Most Popular', img:BIRYANI_IMG},
+  {id:'br1-500', n:'Veg Biryani', size:'500g', cat:'500g', price:69,  d:'Generous feast portion — slow-cooked biryani loaded with veggies and whole spices.', badge:'Family Pack', img:BIRYANI_IMG},
 ];
+var _biryaniFilter = 'all';
 
 function renderBiryaniGrid(){
   var grid=document.getElementById('biryaniGrid');
   if(!grid) return;
   var enabled=isBiryaniOpen||DEV_ALWAYS_OPEN;
-  grid.innerHTML=BIRYANI_MENU.map(function(item){
-    var sizeHtml=Object.keys(item.sizes).map(function(sz){
-      var price=item.sizes[sz];
-      var key=item.id+'-'+sz;
-      var qty=cart[key]?cart[key].qty:0;
-      return '<div style="background:linear-gradient(135deg,#F0FFF4,#DCFCE7);border:1.5px solid #BBF7D0;border-radius:14px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;transition:box-shadow .2s">'
-        +'<div style="display:flex;align-items:center;gap:10px">'
-          +'<div style="width:38px;height:38px;border-radius:10px;background:rgba(22,163,74,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">&#x1F372;</div>'
-          +'<div>'
-            +'<div style="font-size:.84rem;font-weight:800;color:#166534">'+sz+'</div>'
-            +'<div style="font-family:var(--fl);font-size:1rem;font-weight:800;color:#16a34a">&#8377;'+price+'</div>'
-            +'<div style="font-size:.62rem;color:#6b7280;margin-top:1px">&#x1F6F5; ~25 min &nbsp;&#x2022;&nbsp; Hot Delivery</div>'
-          +'</div>'
-        +'</div>'
-        +(qty>0
-          ?'<div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:50px;padding:4px 10px;box-shadow:0 2px 8px rgba(22,163,74,.15)">'
-            +'<button onclick="biryaniQtyChange(\''+key+'\',\''+item.n+'\','+price+',\''+sz+'\',\''+item.img+'\',-1)" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(22,163,74,.3)">&#x2212;</button>'
-            +'<span style="font-size:.95rem;font-weight:800;min-width:20px;text-align:center;color:#166534" id="bqty-'+key+'">'+qty+'</span>'
-            +'<button onclick="biryaniQtyChange(\''+key+'\',\''+item.n+'\','+price+',\''+sz+'\',\''+item.img+'\',1)" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(22,163,74,.3)">+</button>'
-          +'</div>'
-          :'<button class="addbtn" style="background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 5px 14px rgba(22,163,74,.32);font-size:.78rem;padding:8px 16px" onclick="biryaniQtyChange(\''+key+'\',\''+item.n+'\','+price+',\''+sz+'\',\''+item.img+'\',1)" '+(enabled?'':' disabled')+'>'+(enabled?'+ Add':'Closed')+'</button>'
-        )
-        +'</div>';
-    }).join('');
+  var items = _biryaniFilter==='all' ? BIRYANI_MENU : BIRYANI_MENU.filter(function(i){return i.cat===_biryaniFilter;});
+  if(!items.length){
+    grid.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--mu);font-size:.85rem">No items found.</div>';
+    return;
+  }
+  grid.innerHTML=items.map(function(item){
+    var key=item.id;
+    var qty=cart[key]?cart[key].qty:0;
+    var badgeColors={'Best Value':'background:#FFF9E6;color:#92400E;border:1px solid #FDE68A','Most Popular':'background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none','Family Pack':'background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE'};
+    var bStyle=badgeColors[item.badge]||'background:#F3F4F6;color:#374151;border:1px solid #E5E7EB';
     return '<div class="mcard" style="border:1.5px solid #BBF7D0;box-shadow:0 6px 24px rgba(22,163,74,.1)">'
-      +'<div class="cewrap" style="background:linear-gradient(135deg,#F0FFF4,#DCFCE7);height:180px;position:relative">'
-        +'<img src="'+item.img+'" alt="'+item.n+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display=\'none\'">'
-        +'<div style="position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border:1px solid #BBF7D0;border-radius:50px;padding:3px 10px;font-size:.64rem;font-weight:700;color:#166534">&#x1F7E2; Pure Veg</div>'
-        +'<div style="position:absolute;top:10px;right:10px;background:rgba(22,163,74,.9);border-radius:50px;padding:3px 10px;font-size:.64rem;font-weight:700;color:#fff">From &#8377;'+Object.values(item.sizes)[0]+'</div>'
+      +'<div class="cewrap" style="background:linear-gradient(135deg,#F0FFF4,#DCFCE7);height:170px;position:relative">'
+        +'<img src="'+item.img+'" alt="'+item.n+' '+item.size+'" style="width:100%;height:100%;object-fit:cover;display:block">'
+        +'<div style="position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border:1px solid #BBF7D0;border-radius:50px;padding:3px 10px;font-size:.63rem;font-weight:700;color:#166534">&#x1F7E2; Pure Veg</div>'
+        +'<div style="position:absolute;top:10px;right:10px;'+bStyle+';border-radius:50px;padding:3px 10px;font-size:.63rem;font-weight:700">'+item.badge+'</div>'
       +'</div>'
-      +'<div style="padding:14px 14px 16px">'
-        +'<div style="font-family:var(--fl);font-size:1.05rem;font-weight:800;color:#166534;margin-bottom:4px">'+item.n+'</div>'
-        +'<div style="font-size:.74rem;color:var(--mu);margin-bottom:6px;line-height:1.5">'+item.d+'</div>'
-        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'
-          +'<span style="font-size:.64rem;font-weight:700;color:#166534;background:#F0FFF4;padding:2px 9px;border-radius:50px;border:1px solid #BBF7D0">&#x1F33F; Veg Only</span>'
-          +'<span style="font-size:.64rem;font-weight:700;color:#166534;background:#F0FFF4;padding:2px 9px;border-radius:50px;border:1px solid #BBF7D0">&#x1F372; Dum Style</span>'
+      +'<div style="padding:12px 13px 14px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'
+          +'<div style="font-family:var(--fl);font-size:.98rem;font-weight:800;color:#166534">'+item.n+'</div>'
+          +'<div style="background:#F0FFF4;border:1.5px solid #BBF7D0;border-radius:50px;padding:3px 10px;font-size:.72rem;font-weight:800;color:#16a34a">'+item.size+'</div>'
         +'</div>'
-        +sizeHtml
+        +'<div style="font-size:.72rem;color:var(--mu);margin-bottom:10px;line-height:1.5">'+item.d+'</div>'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">'
+          +'<div style="font-family:var(--fl);font-size:1.2rem;font-weight:800;color:#16a34a">&#8377;'+item.price+'</div>'
+          +(qty>0
+            ?'<div style="display:flex;align-items:center;gap:8px;background:#F0FFF4;border:1.5px solid #BBF7D0;border-radius:50px;padding:4px 10px">'
+              +'<button onclick="biryaniQtyChange(\''+key+'\',\''+item.n+' ('+item.size+')\','+item.price+',\''+item.size+'\',\''+item.img+'\',-1)" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(22,163,74,.3)">&#x2212;</button>'
+              +'<span style="font-size:.95rem;font-weight:800;min-width:20px;text-align:center;color:#166534" id="bqty-'+key+'">'+qty+'</span>'
+              +'<button onclick="biryaniQtyChange(\''+key+'\',\''+item.n+' ('+item.size+')\','+item.price+',\''+item.size+'\',\''+item.img+'\',1)" style="width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(22,163,74,.3)">+</button>'
+            +'</div>'
+            :'<button class="addbtn" style="background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 5px 14px rgba(22,163,74,.32)" onclick="biryaniQtyChange(\''+key+'\',\''+item.n+' ('+item.size+')\','+item.price+',\''+item.size+'\',\''+item.img+'\',1)" '+(enabled?'':'disabled')+'>'+(enabled?'+ Add':'Closed')+'</button>'
+          )
+        +'</div>'
       +'</div>'
     +'</div>';
   }).join('');
 }
 
+function setBiryaniFilter(f){
+  _biryaniFilter=f;
+  // sync smart chips
+  document.querySelectorAll('[data-biryani-cat]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-biryani-cat')===f || (f==='all'&&b.getAttribute('data-biryani-cat')==='all'));
+  });
+  renderBiryaniGrid();
+}
+
 function biryaniQtyChange(key, name, price, size, img, delta){
-  if(!cart[key]) cart[key]={id:key, n:name+' ('+size+')', p:price, qty:0, img:img, shop:'biryani'};
+  if(!cart[key]) cart[key]={id:key, n:name, p:price, qty:0, img:img, shop:'biryani'};
   cart[key].qty = Math.max(0, (cart[key].qty||0)+delta);
   if(cart[key].qty===0) delete cart[key];
   renderBiryaniGrid();
@@ -3032,7 +3013,10 @@ function renderSmartCategories(shop){
       ]
     : shop==='biryani'
     ? [
-        ['veg-biryani','🍚 Veg Biryani']
+        ['all','🍚 All'],
+        ['250g','250g – ₹39'],
+        ['400g','400g – ₹49'],
+        ['500g','500g – ₹69']
       ]
     : [
         ['all','All'],
@@ -3043,9 +3027,9 @@ function renderSmartCategories(shop){
         ['sandwich','Sandwiches'],
         ['drinks','Drinks']
       ];
-  var active = shop==='cake' ? (window._cakeFilter||'all') : (window._activeFoodCategory||'pizza');
+  var active = shop==='cake' ? (window._cakeFilter||'all') : shop==='biryani' ? (_biryaniFilter||'all') : (window._activeFoodCategory||'pizza');
   bar.innerHTML = defs.map(function(def){
-    var attr = shop==='cake' ? 'data-cake-filter' : 'data-food-cat';
+    var attr = shop==='cake' ? 'data-cake-filter' : shop==='biryani' ? 'data-biryani-cat' : 'data-food-cat';
     return '<button type="button" class="smart-chip'+(def[0]===active?' active':'')+'" '+attr+'="'+def[0]+'" onclick="handleSmartCategory(\''+shop+'\',\''+def[0]+'\')">'+def[1]+'</button>';
   }).join('');
   bar.classList.add('on');
@@ -3059,6 +3043,7 @@ function handleSmartCategory(shop,key){
     return;
   }
   if(shop==='biryani'){
+    setBiryaniFilter(key);
     var bg=document.getElementById('biryaniGrid');
     if(bg) bg.scrollIntoView({behavior:'smooth',block:'start'});
     return;
@@ -5559,6 +5544,7 @@ function enterShop(shop){
     var biryaniNotice=document.getElementById('biryaniClosedNotice');
     if(biryaniNotice)biryaniNotice.style.display=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!isBiryaniOpen&&!DEV_ALWAYS_OPEN)?'flex':'none';
     renderSmartCategories('biryani');
+    _biryaniFilter='all';
     renderBiryaniGrid();
     setTimeout(function(){
       if(window._shopSwitchToken!==switchToken || activeShop!=='biryani') return;
