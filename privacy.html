@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy & Terms — BudgetMein</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #0f0f1a;
+      --surface:  #1a1a2e;
+      --card:     rgba(255,255,255,.055);
+      --border:   rgba(255,255,255,.09);
+      --accent:   #ff4500;
+      --accent2:  #ff7043;
+      --text:     #f0ece8;
+      --muted:    rgba(240,236,232,.6);
+      --green:    #4caf78;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.75;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: .028;
+      pointer-events: none;
+    }
+
+    /* ── Glow blobs ── */
+    .blob {
+      position: fixed; border-radius: 50%;
+      filter: blur(80px); opacity: .18; pointer-events: none; z-index: 0;
+    }
+    .blob-1 { width: 520px; height: 520px; top: -160px; right: -120px; background: var(--accent); }
+    .blob-2 { width: 400px; height: 400px; bottom: 10%; left: -100px; background: #7b2fff; }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index: 10;
+      padding: 56px 24px 48px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,69,0,.07) 0%, transparent 100%);
+    }
+    .logo-chip {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 18px 8px 10px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .logo-chip .dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #cc3700);
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 800; font-family: 'Syne', sans-serif;
+    }
+    .logo-chip span { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .4px; }
+
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -.5px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--muted); font-size: 14px; }
+
+    /* ── NAV TABS ── */
+    .tab-bar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; justify-content: center; gap: 8px;
+      padding: 14px 24px;
+      background: rgba(15,15,26,.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-bar a {
+      text-decoration: none;
+      color: var(--muted);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all .2s;
+    }
+    .tab-bar a:hover, .tab-bar a.active {
+      color: var(--text);
+      background: rgba(255,69,0,.15);
+      border-color: rgba(255,69,0,.35);
+    }
+
+    /* ── MAIN ── */
+    main {
+      position: relative; z-index: 5;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    /* ── SECTION ── */
+    section {
+      margin-bottom: 60px;
+      scroll-margin-top: 80px;
+    }
+    .section-label {
+      display: inline-block;
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.35rem, 3vw, 1.8rem);
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -.3px;
+    }
+    section h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 24px 0 8px;
+    }
+    p { color: var(--muted); margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(6px);
+    }
+    .card p { margin: 0; }
+
+    /* ── LIST ── */
+    ul.styled {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    ul.styled li {
+      display: flex;
+      gap: 10px;
+      color: var(--muted);
+      align-items: flex-start;
+    }
+    ul.styled li::before {
+      content: '→';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      background: rgba(255,69,0,.07);
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ── TAG BADGES ── */
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    .badge {
+      font-size: 11px; font-weight: 600;
+      font-family: 'Syne', sans-serif;
+      padding: 4px 12px; border-radius: 999px;
+      background: rgba(255,69,0,.12);
+      border: 1px solid rgba(255,69,0,.25);
+      color: var(--accent2);
+    }
+    .badge.green {
+      background: rgba(76,175,120,.1);
+      border-color: rgba(76,175,120,.25);
+      color: var(--green);
+    }
+
+    /* ── DIVIDER ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    /* ── CONTACT CARD ── */
+    .contact-card {
+      background: linear-gradient(135deg, rgba(255,69,0,.12), rgba(255,112,67,.06));
+      border: 1px solid rgba(255,69,0,.25);
+      border-radius: 20px;
+      padding: 28px 24px;
+      margin-top: 32px;
+    }
+    .contact-card h3 {
+      color: var(--text); font-size: 1.1rem; margin-top: 0; margin-bottom: 14px;
+    }
+    .contact-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-row .icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(255,69,0,.15);
+      display: grid; place-items: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .contact-row a { color: var(--accent2); text-decoration: none; }
+    .contact-row a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 5;
+      text-align: center;
+      padding: 28px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer strong { color: var(--accent); font-family: 'Syne', sans-serif; }
+
+    /* ── LAST UPDATED PILL ── */
+    .updated-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(76,175,120,.1);
+      border: 1px solid rgba(76,175,120,.2);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .updated-pill::before { content: '●'; font-size: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-chip">
+    <div class="dot">B</div>
+    <span>BudgetMein</span>
+  </div>
+  <h1>Privacy Policy &<br><span>Terms of Service</span></h1>
+  <p>Jahangir Puri, Delhi — Local Vegetarian Food Delivery</p>
+  <div class="updated-pill">Last Updated: April 2026</div>
+</header>
+
+<!-- NAV -->
+<nav class="tab-bar">
+  <a href="#privacy" class="active">Privacy Policy</a>
+  <a href="#terms">Terms of Service</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <!-- ════════════════════════════════
+       PRIVACY POLICY
+  ════════════════════════════════ -->
+  <section id="privacy">
+    <div class="section-label">Legal Document</div>
+    <h2>Privacy Policy</h2>
+    <p>BudgetMein ("we", "our", "us") operates a local vegetarian food delivery service in Jahangir Puri, Delhi. This Privacy Policy explains how we collect, use, and protect your personal information when you use our app.</p>
+    <p>By using BudgetMein, you agree to the collection and use of information as described in this policy.</p>
+
+    <h3>1. Information We Collect</h3>
+    <p>When you use BudgetMein, we collect the following information:</p>
+    <ul class="styled">
+      <li><strong>Name</strong> — provided during account creation via Google Sign-In</li>
+      <li><strong>Phone number</strong> — provided when placing an order</li>
+      <li><strong>Delivery address</strong> — entered manually or captured via GPS</li>
+      <li><strong>Precise location (GPS)</strong> — collected when you place an order to assist in delivery address entry. This is used only at the time of ordering and is not tracked continuously.</li>
+      <li><strong>Order details</strong> — items ordered, order amount, payment method</li>
+      <li><strong>Device identifiers</strong> — collected automatically by Firebase for authentication and analytics purposes</li>
+    </ul>
+
+    <div class="highlight">
+      📍 <strong>Location Data:</strong> Our app requests access to your device's GPS location when you place an order. This is used solely to help fill your delivery address. We do not track your location in the background or at any other time.
+    </div>
+
+    <h3>2. How We Use Your Information</h3>
+    <ul class="styled">
+      <li>To process and deliver your food orders</li>
+      <li>To send order confirmations and delivery updates</li>
+      <li>To contact you regarding your order if needed</li>
+      <li>To improve our service and app experience</li>
+      <li>To prevent fraud and ensure security</li>
+    </ul>
+
+    <h3>3. Third-Party Services</h3>
+    <p>BudgetMein uses the following third-party services that may collect data as part of their operation:</p>
+
+    <div class="card">
+      <p><strong>Google Firebase</strong> — We use Firebase for user authentication, database storage, and app security. Firebase may collect device identifiers, usage data, and crash reports. <a href="https://firebase.google.com/support/privacy" target="_blank" style="color:var(--accent2)">Firebase Privacy Policy →</a></p>
+    </div>
+    <div class="card">
+      <p><strong>Google Sign-In</strong> — We use Google OAuth for account creation and login. Google's privacy policy applies to data collected through this service. <a href="https://policies.google.com/privacy" target="_blank" style="color:var(--accent2)">Google Privacy Policy →</a></p>
+    </div>
+    <div class="card">
+      <p><strong>Telegram</strong> — Order notifications are sent to our internal team via Telegram Bot API. Only order-related information is transmitted. No user-identifiable data is shared publicly. <a href="https://telegram.org/privacy" target="_blank" style="color:var(--accent2)">Telegram Privacy Policy →</a></p>
+    </div>
+    <div class="card">
+      <p><strong>Cloudinary</strong> — We use Cloudinary to host and serve app images (e.g., food photos, app icons). <a href="https://cloudinary.com/privacy" target="_blank" style="color:var(--accent2)">Cloudinary Privacy Policy →</a></p>
+    </div>
+    <div class="card">
+      <p><strong>Vercel</strong> — Our app is hosted on Vercel. Vercel may collect standard server logs including IP addresses. <a href="https://vercel.com/legal/privacy-policy" target="_blank" style="color:var(--accent2)">Vercel Privacy Policy →</a></p>
+    </div>
+
+    <h3>4. Data Sharing</h3>
+    <p>We do <strong>not</strong> sell, trade, or rent your personal information to any third party. Your data is shared only in the following situations:</p>
+    <ul class="styled">
+      <li>With our delivery partners — only your name, phone, and delivery address, for the purpose of delivering your order</li>
+      <li>With third-party services listed above, as part of their normal operation</li>
+      <li>If required by law or legal proceedings</li>
+    </ul>
+
+    <div class="badge-row">
+      <span class="badge green">✓ We never sell your data</span>
+      <span class="badge green">✓ No advertising networks</span>
+      <span class="badge green">✓ No data brokers</span>
+    </div>
+
+    <h3>5. Data Retention</h3>
+    <p>We retain your personal data for up to <strong>2 years</strong> from the date of your last order or account activity, whichever is later. After this period, your data is automatically deleted from our systems.</p>
+    <p>Order history records may be retained for up to <strong>5 years</strong> for accounting and legal compliance purposes, in an anonymized form where possible.</p>
+
+    <h3>6. Cookies and Local Storage</h3>
+    <p>BudgetMein uses browser <strong>localStorage</strong> to store your cart, session information, and app preferences on your device. This data is stored locally and is not transmitted to our servers. We do not use advertising cookies or tracking cookies.</p>
+
+    <h3>7. Data Security</h3>
+    <p>We implement industry-standard security measures including Firebase Security Rules, App Check (reCAPTCHA v3), HTTPS encryption, and secure serverless proxies. However, no method of transmission over the internet is 100% secure.</p>
+
+    <h3>8. Children's Privacy</h3>
+    <div class="highlight">
+      This app is <strong>not intended for children under 13 years of age</strong>. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal information, please contact us immediately at <a href="mailto:budgetmeinhelpdesk@gmail.com" style="color:var(--accent2)">budgetmeinhelpdesk@gmail.com</a> and we will delete such information promptly.
+    </div>
+
+    <h3>9. Your Rights & Data Deletion</h3>
+    <p>You have the right to:</p>
+    <ul class="styled">
+      <li>Access the personal data we hold about you</li>
+      <li>Request correction of inaccurate data</li>
+      <li>Request deletion of your account and all associated data</li>
+      <li>Withdraw consent at any time</li>
+    </ul>
+    <p>To delete your account and all associated data, contact us at <a href="mailto:budgetmeinhelpdesk@gmail.com" style="color:var(--accent2)">budgetmeinhelpdesk@gmail.com</a> or WhatsApp <a href="https://wa.me/919625867683" style="color:var(--accent2)">+91 96258 67683</a>. We will process deletion requests within 30 days.</p>
+
+    <h3>10. Changes to This Policy</h3>
+    <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by updating the "Last Updated" date at the top of this page. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+  </section>
+
+  <hr />
+
+  <!-- ════════════════════════════════
+       TERMS OF SERVICE
+  ════════════════════════════════ -->
+  <section id="terms">
+    <div class="section-label">Legal Document</div>
+    <h2>Terms of Service</h2>
+    <p>These Terms of Service govern your use of the BudgetMein food delivery application and services. By using BudgetMein, you agree to these terms.</p>
+
+    <h3>1. Service Description</h3>
+    <p>BudgetMein is a local vegetarian food delivery service operating exclusively in <strong>Jahangir Puri, Delhi — 110033</strong>. We connect customers with home-cooked and freshly prepared vegetarian food, delivered to their doorstep.</p>
+
+    <h3>2. Service Area</h3>
+    <div class="highlight">
+      🗺️ We currently deliver <strong>only within Jahangir Puri, Delhi 110033</strong>. Orders from outside this area cannot be accepted. We are not responsible for delivery failures due to incorrect address or location outside our service zone.
+    </div>
+
+    <h3>3. Pricing and Fees</h3>
+    <ul class="styled">
+      <li>All prices are listed in Indian Rupees (₹) and are inclusive of applicable taxes</li>
+      <li>Delivery fee: <strong>₹30</strong> for orders below ₹149 | <strong>₹25</strong> for orders ₹149 and above</li>
+      <li>Platform convenience fee: <strong>₹5</strong> per order</li>
+      <li>No hidden charges — the total shown at checkout is the final amount you pay</li>
+    </ul>
+
+    <h3>4. Payment</h3>
+    <p>BudgetMein currently accepts <strong>Cash on Delivery (COD) only</strong>. Please keep exact change ready. We do not accept UPI, cards, or any digital payment at the door at this time.</p>
+
+    <h3>5. Order Cancellation</h3>
+    <ul class="styled">
+      <li>You may cancel your order <strong>within 2 minutes</strong> of placing it, before it is accepted by our team</li>
+      <li>Once the order is accepted and preparation has begun, cancellation is not possible</li>
+      <li>In case of unavailability of items, we will contact you to modify or cancel the order</li>
+    </ul>
+
+    <h3>6. Refund Policy</h3>
+    <p><strong>Eligible for refund/replacement:</strong></p>
+    <ul class="styled">
+      <li>Wrong item delivered</li>
+      <li>Severely damaged or spoiled food</li>
+      <li>Order not delivered but marked as delivered</li>
+    </ul>
+    <p><strong>Not eligible for refund:</strong></p>
+    <ul class="styled">
+      <li>Change of mind after order preparation has started</li>
+      <li>Incorrect address provided by the customer</li>
+      <li>Delivery refused by the customer at the door</li>
+      <li>Minor taste preferences or spice level differences</li>
+    </ul>
+    <p>To raise a refund request, contact us within 1 hour of delivery at <a href="mailto:budgetmeinhelpdesk@gmail.com" style="color:var(--accent2)">budgetmeinhelpdesk@gmail.com</a> or WhatsApp <a href="https://wa.me/919625867683" style="color:var(--accent2)">+91 96258 67683</a>.</p>
+
+    <h3>7. User Responsibilities</h3>
+    <ul class="styled">
+      <li>Provide accurate name, phone number, and delivery address</li>
+      <li>Be available to receive the order at the provided address</li>
+      <li>Do not use the platform for fraudulent, abusive, or illegal purposes</li>
+      <li>Do not place fake orders — repeated fake orders may result in account suspension</li>
+    </ul>
+
+    <h3>8. Limitation of Liability</h3>
+    <p>BudgetMein is not liable for delays caused by traffic, weather, or other conditions beyond our control. We are not responsible for allergic reactions where ingredients were not explicitly disclosed by the customer. Our maximum liability for any claim is limited to the value of the order placed.</p>
+
+    <h3>9. Account Suspension</h3>
+    <p>We reserve the right to suspend or terminate accounts that engage in fraudulent activity, abuse of staff, repeated fake orders, or violation of these terms without prior notice.</p>
+
+    <h3>10. Governing Law</h3>
+    <div class="highlight">
+      ⚖️ These Terms of Service are governed by and construed in accordance with the <strong>laws of India</strong>. Any disputes arising from the use of BudgetMein shall be subject to the jurisdiction of the courts of <strong>Delhi, India</strong>.
+    </div>
+
+    <h3>11. Changes to Terms</h3>
+    <p>We reserve the right to modify these terms at any time. Updated terms will be posted on this page with a revised date. Continued use of BudgetMein constitutes acceptance of the updated terms.</p>
+  </section>
+
+  <hr />
+
+  <!-- ════════════════════════════════
+       CONTACT
+  ════════════════════════════════ -->
+  <section id="contact">
+    <div class="section-label">Get In Touch</div>
+    <h2>Contact Us</h2>
+    <p>For any questions, complaints, refunds, or data-related requests, reach out to us through any of the following channels. We typically respond within 24 hours.</p>
+
+    <div class="contact-card">
+      <h3>BudgetMein Support</h3>
+      <div class="contact-row">
+        <div class="icon">📧</div>
+        <div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:2px;">Email</div>
+          <a href="mailto:budgetmeinhelpdesk@gmail.com">budgetmeinhelpdesk@gmail.com</a>
+        </div>
+      </div>
+      <div class="contact-row">
+        <div class="icon">💬</div>
+        <div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:2px;">WhatsApp</div>
+          <a href="https://wa.me/919625867683">+91 96258 67683</a>
+        </div>
+      </div>
+      <div class="contact-row">
+        <div class="icon">📍</div>
+        <div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:2px;">Service Area</div>
+          <span>Jahangir Puri, Delhi — 110033, India</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <strong>BudgetMein</strong> &nbsp;·&nbsp; Ghar Baitha Order Kar, Budget Mein Kha<br />
+  <span style="font-size:12px;">© 2026 BudgetMein. All rights reserved. &nbsp;·&nbsp; Jahangir Puri, Delhi 110033</span>
+</footer>
+
+<script>
+  // Active tab highlight on scroll
+  const tabs = document.querySelectorAll('.tab-bar a');
+  const sections = document.querySelectorAll('section[id]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    tabs.forEach(t => {
+      t.classList.toggle('active', t.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
