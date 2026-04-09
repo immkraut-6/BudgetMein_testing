@@ -915,7 +915,7 @@ body.page-leaving{opacity:0;transition:opacity .2s ease}
 .sbhead-sub{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:1px}
 .sclose{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:1rem;cursor:pointer;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
 .sclose:hover{background:rgba(255,69,0,.3);color:#fff;border-color:transparent}
-.sbbody{flex:1;overflow-y:auto;padding:16px 16px 0}
+.sbbody{padding:16px 16px 0}
 
 /* ===== EMPTY CART ===== */
 .cempty{text-align:center;padding:60px 20px 40px;color:var(--mu)}
@@ -961,7 +961,7 @@ body.page-leaving{opacity:0;transition:opacity .2s ease}
 .ci-del:hover{background:#FFF3F3;color:var(--er)}
 
 /* ===== CART FOOTER ===== */
-.sbfoot{padding:14px 16px 16px;background:#F7F8FC;flex-shrink:0;border-top:1px solid rgba(26,26,46,.06)}
+.sbfoot{padding:14px 16px 16px;background:#F7F8FC;border-top:1px solid rgba(26,26,46,.06);margin-top:auto}
 
 /* First order free delivery badge */
 .free-del-badge{background:linear-gradient(135deg,#F0FFF4,#DCFCE7);border:1.5px solid #86EFAC;border-radius:10px;padding:8px 12px;margin-bottom:10px;display:none;font-size:.75rem;color:#166534;font-weight:700;text-align:center}
@@ -2322,6 +2322,9 @@ document.getElementById('srch').addEventListener('input',function(){
     <button class="sclose" onclick="closeCart()">&#10005;</button>
   </div>
 
+  <!-- SCROLLABLE CONTENT AREA -->
+  <div id="cartScrollArea" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;">
+
   <!-- DELIVERY PROGRESS BAR -->
   <div class="fpbar" id="fpbar" style="display:none;padding:10px 14px 0">
     <div class="fpbar-inner">
@@ -2390,6 +2393,8 @@ document.getElementById('srch').addEventListener('input',function(){
     <p class="closednote" id="cnote" style="display:none">Orders accepted 3:00 PM - 9:00 PM only</p>
     <p class="closednote" id="checkoutNote" style="display:none;color:var(--er)"></p>
   </div>
+
+  </div><!-- /cartScrollArea -->
 </aside>
 <script>
 // ============================================================
@@ -5403,12 +5408,12 @@ window.addEventListener('beforeunload',function(){
       <p style="margin-bottom:14px">This app is <b>not intended for children under 13 years of age</b>. We do not knowingly collect data from children under 13. If you believe a child under 13 has provided data, contact us immediately.</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">8. Your Rights &amp; Data Deletion</h4>
-      <p style="margin-bottom:14px">You may request access, correction, or deletion of your data at any time. To delete your account and all data, contact us at <b>budgetmeinhelpdesk@gmail.com</b> or WhatsApp +91 96258 67683. We process requests within 30 days.</p>
+      <p style="margin-bottom:14px">You may request access, correction, or deletion of your data at any time. To delete your account and all data, contact us at <b><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2547504142405148404c4b4d4049554140564e654248444c490b464a48">[email&#160;protected]</a></b> or WhatsApp +91 96258 67683. We process requests within 30 days.</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">9. Contact</h4>
       <p style="margin-bottom:4px">&#128205; Jahangir Puri, Delhi - 110033</p>
       <p style="margin-bottom:4px">&#9742; +91 96258 67683</p>
-      <p style="margin-bottom:8px">&#9993; budgetmeinhelpdesk@gmail.com</p>
+      <p style="margin-bottom:8px">&#9993; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3a1b6a7a4a6b7aea6aaadaba6afb3a7a6b0a883a4aea2aaafeda0acae">[email&#160;protected]</a></p>
       <p style="margin-bottom:16px"><a href="/privacy.html" target="_blank" style="color:var(--p)">View Full Privacy Policy &#8599;</a></p>
 
       <button class="confirm-btn" onclick="closePrivacyModal()">I Understand</button>
@@ -5506,7 +5511,7 @@ window.addEventListener('beforeunload',function(){
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">12. Contact &amp; Support</h4>
       <p style="margin-bottom:4px">&#128205; Jahangir Puri, Delhi - 110033</p>
       <p style="margin-bottom:4px">&#9742; +91 96258 67683 (Call / WhatsApp)</p>
-      <p style="margin-bottom:4px">&#9993; budgetmeinhelpdesk@gmail.com</p>
+      <p style="margin-bottom:4px">&#9993; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="472532232022332a222e292f222b372322342c07202a262e2b6924282a">[email&#160;protected]</a></p>
       <p style="margin-bottom:16px">Available: Monday to Sunday, 3:00 PM - 9:00 PM</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">13. Governing Law</h4>
@@ -5552,7 +5557,7 @@ window.addEventListener('beforeunload',function(){
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function(){
   var INSTALL_KEY   = 'bm_pwa_installed';
   var DISMISS_KEY   = 'bm_pwa_dismissed_at';
@@ -5745,18 +5750,4 @@ function enterShop(shop){
     if(ckv)ckv.style.display='none';
     if(msec)msec.style.display='none';
     var biryaniNotice=document.getElementById('biryaniClosedNotice');
-    if(biryaniNotice)biryaniNotice.style.display=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!isBiryaniOpen&&!DEV_ALWAYS_OPEN)?'flex':'none';
-    renderSmartCategories('biryani');
-    _biryaniFilter='all';
-    renderBiryaniGrid();
-    setTimeout(function(){
-      if(window._shopSwitchToken!==switchToken || activeShop!=='biryani') return;
-      renderBiryaniGrid();
-      var bg=document.getElementById('biryaniGrid');
-      if(bg) bg.scrollIntoView({behavior:'smooth',block:'start'});
-    },100);
-  }
-  checkStore();
-}
-function goBackToShopPicker(){showShopPicker();}
-</script>
+    if(biryaniNotice)biryaniNotice.style.display=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!
