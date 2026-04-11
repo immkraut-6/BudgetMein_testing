@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<!-- ✅ FIXED v2: 
+     1. bmClaimCustomerPhone now skips phoneIndex write for anonymous users
+        (anonymous users are blocked from phoneIndex by Firestore rules — this was causing
+        "Missing or insufficient permissions" on Save and Continue)
+     2. Firestore rules: added (resource != null &&) guard on users write rule
+        to prevent crash when saving profile for first time (new document)
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
@@ -84,9 +91,21 @@ window.bmClaimCustomerPhone = async function(rawPhone, meta){
   var digits = bmNormalizePhoneDigits(rawPhone);
   if(digits.length!==10) throw new Error('Please enter a valid 10-digit phone number.');
   var uid = currentUser.uid;
+  // ✅ FIX: Detect anonymous users — they cannot write to phoneIndex (blocked by Firestore rules)
+  var isAnonymous = currentUser.isAnonymous === true ||
+    (!currentUser.email && currentUser.providerData && currentUser.providerData.length === 0);
   var phoneRef = doc(db,'phoneIndex',digits);
   var userRef = doc(db,'users',uid);
   meta = meta || {};
+
+  // ✅ FIX: Anonymous users — skip phoneIndex entirely, just save phoneDigits to users doc
+  if(isAnonymous){
+    const {setDoc:_sdAnon} = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js');
+    await _sdAnon(userRef, {phoneDigits:digits, updatedAt:serverTimestamp()}, {merge:true});
+    return digits;
+  }
+
+  // Non-anonymous users (Google/Email) — full transaction including phoneIndex claim
   await runTransaction(db, async function(tx){
     var userSnap = await tx.get(userRef);
     var prevDigits = '';
@@ -2486,13 +2505,13 @@ pizza:[
 {id:'p1',e:'??',n:'Margherita',d:'Classic tomato base, mozzarella',ps:{S:60,M:100},badge:'ml',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130698/Margherita-Pizza_2_qudyap.jpg'},
 {id:'p2',e:'??',n:'Onion &amp; Capsicum',d:'Tangy onion, crunchy capsicum',ps:{S:60,M:100},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130714/ONION-CAPSICUM-PIZZA_y6iho3.jpg'},
 {id:'p3',e:'??',n:'Corn With Cheese',d:'Sweet corn, loads of cheese',ps:{S:60,M:100},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130663/corn-_-cheese_Pizza_zwxc8h.jpg'},
-{id:'p4',e:'??',n:'Tandoori Paneer',d:'Smoky paneer tikka, spiced base',ps:{S:80,M:130},badge:'bs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130736/tandoori-paneer-pizza_jgw3nl.avif'},
+{id:'p4',e:'??',n:'Tandoori Paneer',d:'Smoky paneer tikka, spiced base',ps:{S:70,M:110},badge:'bs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130736/tandoori-paneer-pizza_jgw3nl.avif'},
 {id:'p5',e:'??',n:'Fry Day Special',d:"Chef's loaded Friday favourite",ps:{S:80,M:130},badge:'sp',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130720/Special_Pizza_qztab5.jpg'},
 {id:'p6',e:'??',n:'Double Cheese',d:'Double mozzarella, pure indulgence',ps:{S:100,M:160},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130664/Double_Cheese_Pizza_nqpycy.jpg'},
 ],
 burger:[
-{id:'b1',e:'🍔',n:'Aloo Tikki Burger',d:'Classic aloo tikki, mint chutney',p:119,badge:'3 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/Aloo-Tikki-Burger_ztqq6e.jpg'},
-{id:'b6',e:'🍔',n:'Bez Burger',d:'Signature BudgetMein burger, crispy & saucy',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130698/massala_aaloo_burger_fm9hoe.jpg'},
+{id:'b1',e:'🍔',n:'Aloo Tikki Burger',d:'Classic aloo tikki, mint chutney',p:119,badge:'3 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
+{id:'b6',e:'🍔',n:'Bez Burger',d:'Signature BudgetMein burger, crispy & saucy',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
 {id:'b2',e:'🍔',n:'Crispy Veg Burger',d:'Crispy veggie patty, fresh slaw',p:50,img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130664/Crispu_Vege-Burger_vluery.webp'},
 {id:'b7',e:'🍔',n:'Cheesy Burger',d:'Extra loaded cheese, rich creamy sauce',p:119,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130662/CHEESEBURGER_gvrdy0.jpg'},
 {id:'b4',e:'🍔',n:'Spicy Burger',d:'Extra hot spicy patty, jalapeño',p:99,badge:'2 pcs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130726/Spicy_Burger_myyzm8.avif'},
@@ -2509,7 +2528,7 @@ fries:[
 {id:'f3',e:'??',n:'Cheesy Fries',d:'Fries loaded with cheese sauce',p:80,badge:'bs',img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130663/cheese-fries_i6fqiq.jpg'},
 ],
 sandwich:[
-{id:'s1',e:'🥪',n:'Sandwich Lite',d:'Simple &amp; fresh grilled sandwich',ps:{'4pc':99},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1775572050/istockphoto-1221237754-612x612_h1qudx.jpg'},
+{id:'s1',e:'🥪',n:'Sandwich Lite',d:'Simple &amp; fresh grilled sandwich',ps:{'4pc':99},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130719/Sandwich_lite_pys5qk.jpg'},
 {id:'s2',e:'🥪',n:'Grill Sandwich',d:'Grilled with veggies &amp; cheese',ps:{'4pc':139},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130719/Sandwich_lite_pys5qk.jpg'},
 {id:'s3',e:'🥪',n:'Paneer Sandwich',d:'Marinated paneer, spiced filling',ps:{'4pc':159},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130714/Paneer_sandwich_sz369u.jpg'},
 {id:'s4',e:'🥪',n:'Mozzarella Sandwich',d:'Melty mozzarella, herb spread',ps:{'4pc':159},img:'https://res.cloudinary.com/dklefbj2a/image/upload/v1774130713/Mozzorella_Sandwich_bgxwa1.jpg'},
@@ -5432,12 +5451,12 @@ window.addEventListener('beforeunload',function(){
       <p style="margin-bottom:14px">This app is <b>not intended for children under 13 years of age</b>. We do not knowingly collect data from children under 13. If you believe a child under 13 has provided data, contact us immediately.</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">8. Your Rights &amp; Data Deletion</h4>
-      <p style="margin-bottom:14px">You may request access, correction, or deletion of your data at any time. To delete your account and all data, contact us at <b>budgetmeinhelpdesk@gmail.com</b> or WhatsApp +91 96258 67683. We process requests within 30 days.</p>
+      <p style="margin-bottom:14px">You may request access, correction, or deletion of your data at any time. To delete your account and all data, contact us at <b><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="96f4e3f2f1f3e2fbf3fff8fef3fae6f2f3e5fdd6f1fbf7fffab8f5f9fb">[email&#160;protected]</a></b> or WhatsApp +91 96258 67683. We process requests within 30 days.</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">9. Contact</h4>
       <p style="margin-bottom:4px">&#128205; Jahangir Puri, Delhi - 110033</p>
       <p style="margin-bottom:4px">&#9742; +91 96258 67683</p>
-      <p style="margin-bottom:8px">&#9993; budgetmeinhelpdesk@gmail.com</p>
+      <p style="margin-bottom:8px">&#9993; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0a687f6e6d6f7e676f6364626f667a6e6f79614a6d676b636624696567">[email&#160;protected]</a></p>
       <p style="margin-bottom:16px"><a href="/privacy.html" target="_blank" style="color:var(--p)">View Full Privacy Policy &#8599;</a></p>
 
       <button class="confirm-btn" onclick="closePrivacyModal()">I Understand</button>
@@ -5535,7 +5554,7 @@ window.addEventListener('beforeunload',function(){
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">12. Contact &amp; Support</h4>
       <p style="margin-bottom:4px">&#128205; Jahangir Puri, Delhi - 110033</p>
       <p style="margin-bottom:4px">&#9742; +91 96258 67683 (Call / WhatsApp)</p>
-      <p style="margin-bottom:4px">&#9993; budgetmeinhelpdesk@gmail.com</p>
+      <p style="margin-bottom:4px">&#9993; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2547504142405148404c4b4d4049554140564e654248444c490b464a48">[email&#160;protected]</a></p>
       <p style="margin-bottom:16px">Available: Monday to Sunday, 3:00 PM - 9:00 PM</p>
 
       <h4 style="font-family:var(--fl);color:var(--p);margin-bottom:6px">13. Governing Law</h4>
@@ -5581,7 +5600,7 @@ window.addEventListener('beforeunload',function(){
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function(){
   var INSTALL_KEY   = 'bm_pwa_installed';
   var DISMISS_KEY   = 'bm_pwa_dismissed_at';
@@ -5774,18 +5793,4 @@ function enterShop(shop){
     if(ckv)ckv.style.display='none';
     if(msec)msec.style.display='none';
     var biryaniNotice=document.getElementById('biryaniClosedNotice');
-    if(biryaniNotice)biryaniNotice.style.display=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!isBiryaniOpen&&!DEV_ALWAYS_OPEN)?'flex':'none';
-    renderSmartCategories('biryani');
-    _biryaniFilter='all';
-    renderBiryaniGrid();
-    setTimeout(function(){
-      if(window._shopSwitchToken!==switchToken || activeShop!=='biryani') return;
-      renderBiryaniGrid();
-      var bg=document.getElementById('biryaniGrid');
-      if(bg) bg.scrollIntoView({behavior:'smooth',block:'start'});
-    },100);
-  }
-  checkStore();
-}
-function goBackToShopPicker(){showShopPicker();}
-</script>
+    if(biryaniNotice)biryaniNotice.style.display=(BIRYANI_FORCED_CLOSE&&!DEV_ALWAYS_OPEN)||(!
