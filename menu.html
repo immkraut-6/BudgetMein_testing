@@ -2445,8 +2445,8 @@ const OPEN_FROM_MINUTES  = FASTFOOD_OPEN_FROM;
 const OPEN_UNTIL_MINUTES = FASTFOOD_OPEN_UNTIL;
 
 // PRODUCTION FLAGS — frozen so they cannot be changed from browser DevTools
-const DEV_ALWAYS_OPEN = false;
-const DEV_SHOW_DEBUG  = false;
+const DEV_ALWAYS_OPEN = true;
+const DEV_SHOW_DEBUG  = true;
 // Lock these so nobody can type DEV_ALWAYS_OPEN=true in browser console to bypass shop-closed
 try{
   Object.defineProperty(window,'DEV_ALWAYS_OPEN',{value:false,writable:false,configurable:false});
